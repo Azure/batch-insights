@@ -45,6 +45,9 @@ If you followed the getting started instruction batchlabs should show you the st
 
 ![](docs/images/batchlabs.png)
 
+## Option 2: 
+Use the app insights tools to build your own query on the [Azure Portal](https://ms.portal.azure.com/#blade/HubsExtension/Resources/resourceType/microsoft.insights%2Fcomponents)
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
