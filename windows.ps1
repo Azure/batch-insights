@@ -7,7 +7,7 @@ Write-Host "Python version:"
 python --version
 pip install psutil python-dateutil applicationinsights
 Write-Host "Downloading nodestats.py"
-Invoke-WebRequest https://raw.githubusercontent.com/timotheeguerin/batch-insights/master/nodestats.py -OutFile nodestats.py
+Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py -OutFile nodestats.py
 Write-Host "Starting App insights background process in $env:AZ_BATCH_TASK_WORKING_DIR"
 
 $action = New-ScheduledTaskAction -WorkingDirectory $env:AZ_BATCH_TASK_WORKING_DIR -Execute 'Powershell.exe' -Argument "Start-Process python -ArgumentList ('.\nodestats.py','$env:AZ_BATCH_POOL_ID', '$env:AZ_BATCH_NODE_ID', '$env:APP_INSIGHTS_KEY')  -RedirectStandardOutput .\node-stats.log -RedirectStandardError .\node-stats.err.log -NoNewWindow"  
