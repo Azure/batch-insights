@@ -1,7 +1,7 @@
 # batch-insights
 
 ## Usage
-Set 2 environment variables in your start task
+Set 2 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs.
  * `APP_INSIGHTS_APP_ID`: This is your app insight application id
 
 ![](docs/images/app-id.png)
@@ -13,18 +13,18 @@ Set 2 environment variables in your start task
 ### Ubuntu
 Add this command in your start task commandLine
 ```bash
-/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/timotheeguerin/batch-insights/master/ubuntu.sh | bash'
+/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/ubuntu.sh | bash'
 ```
 
 ### Centos
 Add this command in your start task commandLine
 ```bash
-/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/timotheeguerin/batch-insights/master/centos.sh | bash'
+/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/centos.sh | bash'
 ```
 ### Windows
 
 ```batch
-cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/timotheeguerin/batch-insights/master/windows.ps1'))"
+cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/windows.ps1'))"
 
 ```
 ### Generic
@@ -32,7 +32,7 @@ If you already have a version of python installed you just need to download `nod
 You can add this to your main script
 ```
 pip install psutil python-dateutil applicationinsights
-wget --no-cache https://raw.githubusercontent.com/timotheeguerin/batch-insights/master/nodestats.py
+wget --no-cache https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py
 python --version
 python nodestats.py > node-stats.log 2>&1 &
 ```
