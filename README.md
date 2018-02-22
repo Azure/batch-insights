@@ -1,7 +1,8 @@
 # batch-insights
 
 ## Usage
-Set 2 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs.
+Set 2 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs. Then set the start task user to be `Pool Admin`(`Task admin` might work too)
+
  * `APP_INSIGHTS_APP_ID`: This is your app insight application id
 
 ![](docs/images/app-id.png)
