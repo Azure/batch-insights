@@ -7,7 +7,7 @@ Set 2 environment variables in your start task.  Make sure this is set as a Batc
 
 ![](docs/images/app-id.png)
 
- * `APP_INSIGHTS_KEY`: This your app insight instrumentation key
+ * `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
 
 ![](docs/images/inst-key.png)
 

@@ -32,7 +32,6 @@ def setup_logger():
 
 logger = setup_logger()
 
-
 # global defines
 _IS_PLATFORM_WINDOWS = platform.system() == 'Windows'
 
@@ -41,7 +40,9 @@ def python_environment():  # pragma: no cover
     """
     Returns the current python environment information
     """
-    return ' '.join([platform.python_implementation(), platform.python_version()])
+    return ' '.join(
+        [platform.python_implementation(),
+         platform.python_version()])
 
 
 def os_environment():
@@ -144,7 +145,11 @@ class NodeStatsCollector:
     Node Stats Manager class
     """
 
-    def __init__(self, pool_id, node_id, refresh_interval=_DEFAULT_STATS_UPDATE_INTERVAL, app_insights_key=None):
+    def __init__(self,
+                 pool_id,
+                 node_id,
+                 refresh_interval=_DEFAULT_STATS_UPDATE_INTERVAL,
+                 app_insights_key=None):
         self.pool_id = pool_id
         self.node_id = node_id
         self.telemetry_client = None
@@ -154,9 +159,12 @@ class NodeStatsCollector:
         self.disk = IOThroughputAggregator()
         self.network = IOThroughputAggregator()
 
-        if app_insights_key or 'APP_INSIGHTS_KEY' in os.environ:
+        if app_insights_key or 'APP_INSIGHTS_INSTRUMENTATION_KEY' in os.environ or 'APP_INSIGHTS_KEY' in os.environ :
             self.telemetry_client = TelemetryClient(
-                app_insights_key or os.environ.get('APP_INSIGHTS_KEY'))
+                app_insights_key 
+                or os.environ.get('APP_INSIGHTS_INSTRUMENTATION_KEY')
+                or os.environ.get('APP_INSIGHTS_KEY')
+            )
             context = self.telemetry_client.context
             context.application.id = 'AzureBatchInsights'
             context.application.ver = VERSION
@@ -238,8 +246,12 @@ class NodeStatsCollector:
         client = self.telemetry_client
 
         for cpu_n in range(0, stats.cpu_count):
-            client.track_metric("Cpu usage",
-                                stats.cpu_percent[cpu_n], properties={"Cpu #": cpu_n})
+            client.track_metric(
+                "Cpu usage",
+                stats.cpu_percent[cpu_n],
+                properties={
+                    "Cpu #": cpu_n
+                })
 
         client.track_metric("Memory used", stats.mem_used)
         client.track_metric("Memory available", stats.mem_avail)
@@ -250,13 +262,14 @@ class NodeStatsCollector:
         self.telemetry_client.flush()
 
     def _log_stats(self, stats):
-        logger.info("========================= Stats =========================")
-        logger.info("Cpu percent:            %d%% %s",
-                    avg(stats.cpu_percent), stats.cpu_percent)
-        logger.info("Memory used:       %sB / %sB",
-                    pretty_nb(stats.mem_used), pretty_nb(stats.mem_total))
-        logger.info("Swap used:         %sB / %sB",
-                    pretty_nb(stats.swap_avail), pretty_nb(stats.swap_total))
+        logger.info(
+            "========================= Stats =========================")
+        logger.info("Cpu percent:            %d%% %s", avg(stats.cpu_percent),
+                    stats.cpu_percent)
+        logger.info("Memory used:       %sB / %sB", pretty_nb(stats.mem_used),
+                    pretty_nb(stats.mem_total))
+        logger.info("Swap used:         %sB / %sB", pretty_nb(
+            stats.swap_avail), pretty_nb(stats.swap_total))
         logger.info("Net read:               %sBs",
                     pretty_nb(stats.net.read_bps))
         logger.info("Net write:              %sBs",
@@ -303,7 +316,8 @@ def main():
         app_insights_key = sys.argv[3]
 
     # create node stats manager
-    collector = NodeStatsCollector(pool_id, node_id, app_insights_key=app_insights_key)
+    collector = NodeStatsCollector(
+        pool_id, node_id, app_insights_key=app_insights_key)
     collector.init()
     collector.run()
 
