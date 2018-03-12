@@ -159,19 +159,22 @@ class NodeStatsCollector:
         self.disk = IOThroughputAggregator()
         self.network = IOThroughputAggregator()
 
-        if app_insights_key or 'APP_INSIGHTS_INSTRUMENTATION_KEY' in os.environ or 'APP_INSIGHTS_KEY' in os.environ :
-            self.telemetry_client = TelemetryClient(
-                app_insights_key 
+        if app_insights_key or 'APP_INSIGHTS_INSTRUMENTATION_KEY' in os.environ or 'APP_INSIGHTS_KEY' in os.environ:
+            key = app_insights_key 
                 or os.environ.get('APP_INSIGHTS_INSTRUMENTATION_KEY')
                 or os.environ.get('APP_INSIGHTS_KEY')
-            )
+            logger.info("Detected instrumentation key '%s'. Will upload stats to app insights", key)
+            self.telemetry_client = TelemetryClient(key)
             context = self.telemetry_client.context
             context.application.id = 'AzureBatchInsights'
             context.application.ver = VERSION
             context.device.model = "BatchNode"
             context.device.role_name = self.pool_id
             context.device.role_instance = self.node_id
-
+        else:
+            logger.info("No instrumentation key detected. Cannot upload to app insights." + 
+                "Make sure you have the APP_INSIGHTS_INSTRUMENTATION_KEY environment variable setup")
+            
     def init(self):
         """
             Initialize the monitoring
