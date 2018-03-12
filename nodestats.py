@@ -160,9 +160,10 @@ class NodeStatsCollector:
         self.network = IOThroughputAggregator()
 
         if app_insights_key or 'APP_INSIGHTS_INSTRUMENTATION_KEY' in os.environ or 'APP_INSIGHTS_KEY' in os.environ:
-            key = app_insights_key 
+            key = (app_insights_key 
                 or os.environ.get('APP_INSIGHTS_INSTRUMENTATION_KEY')
-                or os.environ.get('APP_INSIGHTS_KEY')
+                or os.environ.get('APP_INSIGHTS_KEY'))
+                
             logger.info("Detected instrumentation key '%s'. Will upload stats to app insights", key)
             self.telemetry_client = TelemetryClient(key)
             context = self.telemetry_client.context
