@@ -16,7 +16,7 @@ if($exists)
 {
     Write-Host "Scheduled task already exists. Removing it and restarting it";
     Stop-ScheduledTask -TaskName "batchappinsights";
-    Unregister-ScheduledTask -Confirm -TaskName "batchappinsights";
+    Unregister-ScheduledTask -Confirm:$false -TaskName "batchappinsights";
 }
 
 Write-Host "Starting App insights background process in $env:AZ_BATCH_TASK_WORKING_DIR"
