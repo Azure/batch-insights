@@ -15,8 +15,9 @@ $exists = Get-ScheduledTask -TaskName "batchappinsights";
 
 if($exists)
 {
-    Write-Host "Scheduled task already exists. Removing it and restarting it"
-    Unregister-ScheduledTask -TaskName "batchappinsights"
+    Write-Host "Scheduled task already exists. Removing it and restarting it";
+    Stop-ScheduledTask -TaskName "batchappinsights";
+    Unregister-ScheduledTask -TaskName "batchappinsights";
 }
 
 $action = New-ScheduledTaskAction -WorkingDirectory $env:AZ_BATCH_TASK_WORKING_DIR -Execute 'Powershell.exe' -Argument "Start-Process python -ArgumentList ('.\nodestats.py','$env:AZ_BATCH_POOL_ID', '$env:AZ_BATCH_NODE_ID', '$env:APP_INSIGHTS_INSTRUMENTATION_KEY')  -RedirectStandardOutput .\node-stats.log -RedirectStandardError .\node-stats.err.log -NoNewWindow"  
