@@ -164,7 +164,7 @@ class NodeStatsCollector:
                 or os.environ.get('APP_INSIGHTS_INSTRUMENTATION_KEY')
                 or os.environ.get('APP_INSIGHTS_KEY'))
                 
-            logger.info("Detected instrumentation key '%s'. Will upload stats to app insights", key)
+            logger.info("Detected instrumentation key. Will upload stats to app insights")
             self.telemetry_client = TelemetryClient(key)
             context = self.telemetry_client.context
             context.application.id = 'AzureBatchInsights'
