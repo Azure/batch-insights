@@ -10,7 +10,7 @@ Write-Host "Downloading nodestats.py"
 Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py -OutFile nodestats.py
 
 # Delete if exists
-$exists = Get-ScheduledTask -TaskName "batchappinsights";
+$exists = Get-ScheduledTask | Where-Object {$_.TaskName -like "batchappinsights" };
 
 if($exists)
 {
