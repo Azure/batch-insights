@@ -10,6 +10,15 @@ Write-Host "Downloading nodestats.py"
 Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py -OutFile nodestats.py
 Write-Host "Starting App insights background process in $env:AZ_BATCH_TASK_WORKING_DIR"
 
+# Delete if exists
+$exists = Get-ScheduledTask -TaskName "batchappinsights";
+
+if($exists)
+{
+    Write-Host "Scheduled task already exists. Removing it and restarting it"
+    Delete-ScheduleTask $taskName
+}
+
 $action = New-ScheduledTaskAction -WorkingDirectory $env:AZ_BATCH_TASK_WORKING_DIR -Execute 'Powershell.exe' -Argument "Start-Process python -ArgumentList ('.\nodestats.py','$env:AZ_BATCH_POOL_ID', '$env:AZ_BATCH_NODE_ID', '$env:APP_INSIGHTS_INSTRUMENTATION_KEY')  -RedirectStandardOutput .\node-stats.log -RedirectStandardError .\node-stats.err.log -NoNewWindow"  
 $principal = New-ScheduledTaskPrincipal -UserID 'NT AUTHORITY\SYSTEM' -LogonType ServiceAccount -RunLevel Highest ; 
 Register-ScheduledTask -Action $action -Principal $principal -TaskName "batchappinsights" -Force ; 
