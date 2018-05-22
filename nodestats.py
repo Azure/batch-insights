@@ -288,7 +288,7 @@ class NodeStatsCollector:
         logger.info("Disk write:              %sBs", pretty_nb(stats.disk_io.write_bps))
         logger.info("Disk usage:")
         for name, stats in stats.disk_usage.items():
-            logger.info("  - %s: %i/%i (%i%)", name, stats.used, stats.total, stats.percent)
+            logger.info("  - %s: %i/%i (%i%%)", name, stats.used, stats.total, stats.percent)
             
         logger.info("-------------------------------------")
         logger.info("")
