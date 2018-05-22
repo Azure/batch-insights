@@ -196,7 +196,7 @@ class NodeStatsCollector:
     def _get_disk_usage(self):
         disk_usage = dict()
         try:
-            disk_usage["user"] = psutil.disk_usage(_USER_DISK)
+            disk_usage[_USER_DISK] = psutil.disk_usage(_USER_DISK)
         except Exception:
             logger.error('Could not retrieve user disk stats: {}'.format(_USER_DISK))
         return disk_usage
