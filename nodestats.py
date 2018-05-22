@@ -265,9 +265,9 @@ class NodeStatsCollector:
         for cpu_n in range(0, stats.cpu_count):
             client.track_metric("Cpu usage", stats.cpu_percent[cpu_n], properties={"Cpu #": cpu_n})
 
-        for name, stats in stats.disk_usage.items():
-            client.track_metric("Disk usage", stats.used, properties={"Disk": name})
-            client.track_metric("Disk free", stats.free, properties={"Disk": name})
+        for name, disk_usage in stats.disk_usage.items():
+            client.track_metric("Disk usage", disk_usage.used, properties={"Disk": name})
+            client.track_metric("Disk free", disk_usage.free, properties={"Disk": name})
 
         client.track_metric("Memory used", stats.mem_used)
         client.track_metric("Memory available", stats.mem_avail)
@@ -287,8 +287,8 @@ class NodeStatsCollector:
         logger.info("Disk read:               %sBs", pretty_nb(stats.disk_io.read_bps))
         logger.info("Disk write:              %sBs", pretty_nb(stats.disk_io.write_bps))
         logger.info("Disk usage:")
-        for name, stats in stats.disk_usage.items():
-            logger.info("  - %s: %i/%i (%i%%)", name, stats.used, stats.total, stats.percent)
+        for name, disk_usage in stats.disk_usage.items():
+            logger.info("  - %s: %i/%i (%i%%)", name, disk_usage.used, disk_usage.total, disk_usage.percent)
             
         logger.info("-------------------------------------")
         logger.info("")
