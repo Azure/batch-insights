@@ -8,7 +8,6 @@ import time
 import platform
 from collections import namedtuple
 import sys
-import shutil
 
 # non-stdlib imports
 import psutil
@@ -199,9 +198,9 @@ class NodeStatsCollector:
     def _get_disk_usage(self):
         disk_usage = dict()
         try:
-            disk_usage[_OS_DISK] = shutil.disk_usage(_OS_DISK)
-            disk_usage[_USER_DISK] = shutil.disk_usage(_USER_DISK)
-        except Exception as e:
+            disk_usage[_OS_DISK] = psutil.disk_usage(_OS_DISK)
+            disk_usage[_USER_DISK] = psutil.disk_usage(_USER_DISK)
+        except Exception:
             logger.error('Could not retrieve user disk stats for {0}: {1}'.format(_USER_DISK, e))
         return disk_usage
 
