@@ -34,15 +34,17 @@ logger = setup_logger()
 # global defines
 _IS_PLATFORM_WINDOWS = platform.system() == 'Windows'
 
+_OS_DISK = None
 _USER_DISK = None
 
 if _IS_PLATFORM_WINDOWS:
-    _USER_DISK = 'C:/'
+    _OS_DISK = 'C:/' # This is inverted on Cloud service
+    _USER_DISK = 'D:/'
 else:
+    _OS_DISK = "/"
     _USER_DISK = '/mnt/resources'
     if not os.path.exists(_USER_DISK):
         _USER_DISK = '/mnt'
-_MEGABYTE = 1048576
 
 
 def python_environment():    # pragma: no cover
@@ -196,6 +198,7 @@ class NodeStatsCollector:
     def _get_disk_usage(self):
         disk_usage = dict()
         try:
+            disk_usage[_OS_DISK] = psutil.disk_usage(_OS_DISK)
             disk_usage[_USER_DISK] = psutil.disk_usage(_USER_DISK)
         except Exception:
             logger.error('Could not retrieve user disk stats: {}'.format(_USER_DISK))
