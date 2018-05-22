@@ -9,7 +9,7 @@ Write-Host "Python version:"
 python --version
 pip install psutil python-dateutil applicationinsights
 Write-Host "Downloading nodestats.py"
-Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py -OutFile nodestats.py
+Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/feature/disk-usage/nodestats.py -OutFile nodestats.py
 
 # Delete if exists
 $exists = Get-ScheduledTask | Where-Object {$_.TaskName -like "batchappinsights" };
