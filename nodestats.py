@@ -23,8 +23,7 @@ def setup_logger():
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s.%(msecs)03dZ %(levelname)s %(message)s')
+    formatter = logging.Formatter('%(asctime)s.%(msecs)03dZ %(levelname)s %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     return logger
@@ -35,14 +34,24 @@ logger = setup_logger()
 # global defines
 _IS_PLATFORM_WINDOWS = platform.system() == 'Windows'
 
+_OS_DISK = None
+_USER_DISK = None
 
-def python_environment():  # pragma: no cover
+if _IS_PLATFORM_WINDOWS:
+    _OS_DISK = 'C:/' # This is inverted on Cloud service
+    _USER_DISK = 'D:/'
+else:
+    _OS_DISK = "/"
+    _USER_DISK = '/mnt/resources'
+    if not os.path.exists(_USER_DISK):
+        _USER_DISK = '/mnt'
+
+
+def python_environment():    # pragma: no cover
     """
     Returns the current python environment information
     """
-    return ' '.join(
-        [platform.python_implementation(),
-         platform.python_version()])
+    return ' '.join([platform.python_implementation(), platform.python_version()])
 
 
 def os_environment():
@@ -89,8 +98,8 @@ class NodeStats:
                  mem_avail=0,
                  swap_total=0,
                  swap_avail=0,
-                 disk_total=0,
-                 disk=None,
+                 disk_io=None,
+                 disk_usage=None,
                  net=None):
         """
         Map the attributes
@@ -103,8 +112,8 @@ class NodeStats:
         self.mem_avail = mem_avail
         self.swap_total = swap_total
         self.swap_avail = swap_avail
-        self.disk_total = disk_total
-        self.disk = disk or NodeIOStats()
+        self.disk_io = disk_io or NodeIOStats()
+        self.disk_usage = disk_usage or dict()
         self.net = net or NodeIOStats()
 
     @property
@@ -145,11 +154,7 @@ class NodeStatsCollector:
     Node Stats Manager class
     """
 
-    def __init__(self,
-                 pool_id,
-                 node_id,
-                 refresh_interval=_DEFAULT_STATS_UPDATE_INTERVAL,
-                 app_insights_key=None):
+    def __init__(self, pool_id, node_id, refresh_interval=_DEFAULT_STATS_UPDATE_INTERVAL, app_insights_key=None):
         self.pool_id = pool_id
         self.node_id = node_id
         self.telemetry_client = None
@@ -160,10 +165,9 @@ class NodeStatsCollector:
         self.network = IOThroughputAggregator()
 
         if app_insights_key or 'APP_INSIGHTS_INSTRUMENTATION_KEY' in os.environ or 'APP_INSIGHTS_KEY' in os.environ:
-            key = (app_insights_key 
-                or os.environ.get('APP_INSIGHTS_INSTRUMENTATION_KEY')
-                or os.environ.get('APP_INSIGHTS_KEY'))
-                
+            key = (app_insights_key or os.environ.get('APP_INSIGHTS_INSTRUMENTATION_KEY')
+                   or os.environ.get('APP_INSIGHTS_KEY'))
+
             logger.info("Detected instrumentation key. Will upload stats to app insights")
             self.telemetry_client = TelemetryClient(key)
             context = self.telemetry_client.context
@@ -173,9 +177,9 @@ class NodeStatsCollector:
             context.device.role_name = self.pool_id
             context.device.role_instance = self.node_id
         else:
-            logger.info("No instrumentation key detected. Cannot upload to app insights." + 
-                "Make sure you have the APP_INSIGHTS_INSTRUMENTATION_KEY environment variable setup")
-            
+            logger.info("No instrumentation key detected. Cannot upload to app insights." +
+                        "Make sure you have the APP_INSIGHTS_INSTRUMENTATION_KEY environment variable setup")
+
     def init(self):
         """
             Initialize the monitoring
@@ -187,14 +191,24 @@ class NodeStatsCollector:
         netio = psutil.net_io_counters()
         return self.network.aggregate(netio.bytes_recv, netio.bytes_sent)
 
-    def _get_disk_usage(self):
+    def _get_disk_io(self):
         diskio = psutil.disk_io_counters()
         return self.disk.aggregate(diskio.read_bytes, diskio.write_bytes)
+
+    def _get_disk_usage(self):
+        disk_usage = dict()
+        try:
+            disk_usage[_OS_DISK] = psutil.disk_usage(_OS_DISK)
+            disk_usage[_USER_DISK] = psutil.disk_usage(_USER_DISK)
+        except Exception:
+            logger.error('Could not retrieve user disk stats for {0}: {1}'.format(_USER_DISK, e))
+        return disk_usage
 
     def _sample_stats(self):
         # get system-wide counters
         mem = psutil.virtual_memory()
-        disk_stats = self._get_disk_usage()
+        disk_stats = self._get_disk_io()
+        disk_usage = self._get_disk_usage()
         net_stats = self._get_network_usage()
 
         swap_total, _, swap_avail, _, _, _ = psutil.swap_memory()
@@ -204,16 +218,19 @@ class NodeStatsCollector:
             cpu_percent=psutil.cpu_percent(interval=None, percpu=True),
             num_pids=len(psutil.pids()),
 
-            # Memory
+        # Memory
             mem_total=mem.total,
             mem_avail=mem.available,
             swap_total=swap_total,
             swap_avail=swap_avail,
 
-            # Disk IO
-            disk=disk_stats,
+        # Disk IO
+            disk_io=disk_stats,
 
-            # Net transfer
+        # Disk usage
+            disk_usage=disk_usage,
+
+        # Net transfer
             net=net_stats,
         )
         del mem
@@ -245,43 +262,37 @@ class NodeStatsCollector:
         """
         process = psutil.Process(os.getpid())
 
-        logger.debug("Uploading stats. Mem of this script: %d vs total: %d",
-                     process.memory_info().rss, stats.mem_avail)
+        logger.debug("Uploading stats. Mem of this script: %d vs total: %d", process.memory_info().rss, stats.mem_avail)
         client = self.telemetry_client
 
         for cpu_n in range(0, stats.cpu_count):
-            client.track_metric(
-                "Cpu usage",
-                stats.cpu_percent[cpu_n],
-                properties={
-                    "Cpu #": cpu_n
-                })
+            client.track_metric("Cpu usage", stats.cpu_percent[cpu_n], properties={"Cpu #": cpu_n})
+
+        for name, disk_usage in stats.disk_usage.items():
+            client.track_metric("Disk usage", disk_usage.used, properties={"Disk": name})
+            client.track_metric("Disk free", disk_usage.free, properties={"Disk": name})
 
         client.track_metric("Memory used", stats.mem_used)
         client.track_metric("Memory available", stats.mem_avail)
-        client.track_metric("Disk read", stats.disk.read_bps)
-        client.track_metric("Disk write", stats.disk.write_bps)
+        client.track_metric("Disk read", stats.disk_io.read_bps)
+        client.track_metric("Disk write", stats.disk_io.write_bps)
         client.track_metric("Network read", stats.net.read_bps)
         client.track_metric("Network write", stats.net.write_bps)
         self.telemetry_client.flush()
 
     def _log_stats(self, stats):
-        logger.info(
-            "========================= Stats =========================")
-        logger.info("Cpu percent:            %d%% %s", avg(stats.cpu_percent),
-                    stats.cpu_percent)
-        logger.info("Memory used:       %sB / %sB", pretty_nb(stats.mem_used),
-                    pretty_nb(stats.mem_total))
-        logger.info("Swap used:         %sB / %sB", pretty_nb(
-            stats.swap_avail), pretty_nb(stats.swap_total))
-        logger.info("Net read:               %sBs",
-                    pretty_nb(stats.net.read_bps))
-        logger.info("Net write:              %sBs",
-                    pretty_nb(stats.net.write_bps))
-        logger.info("Disk read:               %sBs",
-                    pretty_nb(stats.disk.read_bps))
-        logger.info("Disk write:              %sBs",
-                    pretty_nb(stats.disk.write_bps))
+        logger.info("========================= Stats =========================")
+        logger.info("Cpu percent:            %d%% %s", avg(stats.cpu_percent), stats.cpu_percent)
+        logger.info("Memory used:       %sB / %sB", pretty_nb(stats.mem_used), pretty_nb(stats.mem_total))
+        logger.info("Swap used:         %sB / %sB", pretty_nb(stats.swap_avail), pretty_nb(stats.swap_total))
+        logger.info("Net read:               %sBs", pretty_nb(stats.net.read_bps))
+        logger.info("Net write:              %sBs", pretty_nb(stats.net.write_bps))
+        logger.info("Disk read:               %sBs", pretty_nb(stats.disk_io.read_bps))
+        logger.info("Disk write:              %sBs", pretty_nb(stats.disk_io.write_bps))
+        logger.info("Disk usage:")
+        for name, disk_usage in stats.disk_usage.items():
+            logger.info("  - %s: %i/%i (%i%%)", name, disk_usage.used, disk_usage.total, disk_usage.percent)
+            
         logger.info("-------------------------------------")
         logger.info("")
 
@@ -289,8 +300,7 @@ class NodeStatsCollector:
         """
             Start collecting information of the system.
         """
-        logger.debug("Start collecting stats for pool=%s node=%s",
-                     self.pool_id, self.node_id)
+        logger.debug("Start collecting stats for pool=%s node=%s", self.pool_id, self.node_id)
         while True:
             self._collect_stats()
             time.sleep(self.refresh_interval)
@@ -320,8 +330,7 @@ def main():
         app_insights_key = sys.argv[3]
 
     # create node stats manager
-    collector = NodeStatsCollector(
-        pool_id, node_id, app_insights_key=app_insights_key)
+    collector = NodeStatsCollector(pool_id, node_id, app_insights_key=app_insights_key)
     collector.init()
     collector.run()
 
