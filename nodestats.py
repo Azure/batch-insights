@@ -201,8 +201,8 @@ class NodeStatsCollector:
         try:
             disk_usage[_OS_DISK] = shutil.disk_usage(_OS_DISK)
             disk_usage[_USER_DISK] = shutil.disk_usage(_USER_DISK)
-        except Exception:
-            logger.error('Could not retrieve user disk stats: {}'.format(_USER_DISK))
+        except Exception as e:
+            logger.error('Could not retrieve user disk stats for {0}: {1}'.format(_USER_DISK, e))
         return disk_usage
 
     def _sample_stats(self):
