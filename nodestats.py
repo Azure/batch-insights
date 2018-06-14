@@ -200,7 +200,7 @@ class NodeStatsCollector:
         try:
             disk_usage[_OS_DISK] = psutil.disk_usage(_OS_DISK)
             disk_usage[_USER_DISK] = psutil.disk_usage(_USER_DISK)
-        except Exception:
+        except Exception as e:
             logger.error('Could not retrieve user disk stats for {0}: {1}'.format(_USER_DISK, e))
         return disk_usage
 
