@@ -7,7 +7,7 @@ Write-Host "Current path: $env:Path"
 
 Write-Host "Python version:"
 python --version
-pip install psutil python-dateutil applicationinsights
+pip install psutil python-dateutil applicationinsights==0.11.3
 Write-Host "Downloading nodestats.py"
 Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py -OutFile nodestats.py
 

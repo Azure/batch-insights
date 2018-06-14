@@ -32,7 +32,7 @@ cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile
 If you already have a version of python installed you just need to download `nodestats.py` and install dependencies
 You can add this to your main script
 ```
-pip install psutil python-dateutil applicationinsights
+pip install psutil python-dateutil applicationinsights==0.11.3
 wget --no-cache https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py
 python --version
 python nodestats.py > node-stats.log 2>&1 &
