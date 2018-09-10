@@ -57,7 +57,7 @@ func listenForStats() {
 	for _ = range time.Tick(STATS_POLL_RATE) {
 
 		v, _ := mem.VirtualMemory()
-		var cpus, err = cpu.Percent(time.Duration(5), true)
+		var cpus, err = cpu.Percent(0, true)
 		fmt.Println(cpus)
 		if err != nil {
 			fmt.Println(err)
