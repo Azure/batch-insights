@@ -3,6 +3,7 @@ set -e
 apt-get update  
 apt-get install -y git binutils bison build-essential
 
+rm -rf /usr/local
 wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
 tar -xvf go1.11.linux-amd64.tar.gz
 mv go /usr/local
