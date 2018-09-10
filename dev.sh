@@ -7,8 +7,9 @@ wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
 tar -xvf go1.11.linux-amd64.tar.gz
 mv go /usr/local
 export GOROOT=/usr/local/go
+export GOROOT=/usr/local/go
 
-echo GO version $(go --version)
+echo GO version $(go version)
 
 git clone https://github.com/Azure/batch-insights -b feature/go
 
