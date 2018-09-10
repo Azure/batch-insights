@@ -1,7 +1,7 @@
 set -e
 
 apt-get update  
-apt-get install -y git
+apt-get install -y git binutils bison build-essential
 
 bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
 source /mnt/batch/tasks/startup/wd/.gvm/scripts/gvm
