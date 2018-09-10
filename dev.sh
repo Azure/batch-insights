@@ -3,13 +3,10 @@ set -e
 apt-get update  
 apt-get install -y git binutils bison build-essential
 
-bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
-source /mnt/batch/tasks/startup/wd/.gvm/scripts/gvm
-gvm install go1.4
-gvm use go1.4
-export GOROOT_BOOTSTRAP=$GOROOT
-gvm install go1.11
-gvm use go1.11
+wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
+tar -xvf go1.11.linux-amd64.tar.gz
+mv go /usr/local
+export GOROOT=/usr/local/go
 
 echo GO version $(go --version)
 
