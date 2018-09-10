@@ -14,14 +14,6 @@ import (
 	"github.com/shirou/gopsutil/net"
 )
 
-type NodeStats struct {
-	memory      *mem.VirtualMemoryStat
-	cpuPercents []float64
-	diskUsage   []*disk.UsageStat
-	diskIO      *IOStats
-	netIO       *IOStats
-}
-
 var IS_PLATFORM_WINDOWS = runtime.GOOS == "windows"
 
 const STATS_POLL_RATE = time.Duration(5) * time.Second
@@ -60,6 +52,7 @@ func main() {
 func listenForStats() {
 	var diskIO = IOAggregator{}
 	var netIO = IOAggregator{}
+	var appInsightsService = createAppInsightsService()
 
 	for _ = range time.Tick(STATS_POLL_RATE) {
 
@@ -74,7 +67,11 @@ func listenForStats() {
 			netIO:       getNetIO(&netIO),
 		}
 
-		printStats(stats)
+		if appInsightsService != nil {
+			appInsightsService.UploadStats(stats)
+		} else {
+			printStats(stats)
+		}
 	}
 }
 
@@ -155,4 +152,18 @@ func avg(array []float64) float64 {
 		total += value
 	}
 	return total / float64(len(array))
+}
+
+func createAppInsightsService() *AppInsightsService {
+	var key, keySet = os.LookupEnv("APP_INSIGHTS_INSTRUMENTATION_KEY")
+	var poolId = os.Getenv("AZ_BATCH_POOL_ID")
+	var nodeId = os.Getenv("AZ_BATCH_NODE_ID")
+
+	if keySet {
+		service := NewAppInsightsService(key, poolId, nodeId)
+		return &service
+	} else {
+		fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set will to upload to app insights")
+		return nil
+	}
 }
