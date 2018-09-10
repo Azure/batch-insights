@@ -4,7 +4,8 @@ apt-get update
 apt-get install -y git binutils bison build-essential
 
 export GOROOT=/usr/local/go
-if [ -d "$GOROOT" ]; then rm -Rf $GOROOT; fi
+if [ -d "$GOROOT" ]; then rm -rf $GOROOT; fi
+
 wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
 tar -xvf go1.11.linux-amd64.tar.gz
 mv go /usr/local
