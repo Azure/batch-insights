@@ -12,7 +12,13 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
+
+	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/dcgm"
 )
+
+if err := dcgm.Init(dcgm.Embedded); err != nil {
+	log.Panicln(err)
+}
 
 var IS_PLATFORM_WINDOWS = runtime.GOOS == "windows"
 
