@@ -1,7 +1,8 @@
 $wd = $env:AZ_BATCH_TASK_WORKING_DIR
 
 Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-choco install -y python --version 3.6.3
+# choco install -y python --version 3.6.3
+choco install -y python2
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 Write-Host "Current path: $env:Path"
 
