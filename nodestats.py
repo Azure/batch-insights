@@ -188,7 +188,7 @@ class NodeStatsCollector:
             context.application.id = 'AzureBatchInsights'
             context.application.ver = VERSION
             context.device.model = "BatchNode"
-            context.cloud.role_name = self.pool_id
+            context.cloud.role = self.pool_id
             context.cloud.role_instance = self.node_id
         else:
             logger.info("No instrumentation key detected. Cannot upload to app insights." +

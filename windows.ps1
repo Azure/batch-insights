@@ -8,7 +8,7 @@ Write-Host "Current path: $env:Path"
 
 Write-Host "Python version:"
 python --version
-pip install psutil python-dateutil applicationinsights==0.11.5 nvidia-ml-py
+pip install psutil python-dateutil applicationinsights==0.11.6 nvidia-ml-py
 Write-Host "Downloading nodestats.py"
 Invoke-WebRequest https://raw.githubusercontent.com/Azure/batch-insights/feature/gpu/nodestats.py -OutFile nodestats.py
 
