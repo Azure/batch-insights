@@ -10,6 +10,8 @@ github.com/dustin/go-humanize v0.0.0-20180713052910-9f541cc9db5d h1:lDrio3iIdNb0
 github.com/dustin/go-humanize v0.0.0-20180713052910-9f541cc9db5d/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/go-ole/go-ole v1.2.1 h1:2lOsA72HgjxAuMlKpFiCbHTvu44PIVkZ5hqm3RSdI/E=
 github.com/go-ole/go-ole v1.2.1/go.mod h1:7FAglXiTm7HKlQRDeOQ6ZNUHidzCWXuZWq/1dTyBNF8=
+github.com/karalabe/xgo v0.0.0-20180518092241-d164e4e53dfd h1:C7cFy3XtRC6V49dYqv7/X4EYfMHviXZyUrhCPLi9O6c=
+github.com/karalabe/xgo v0.0.0-20180518092241-d164e4e53dfd/go.mod h1:iYGcTYIPUvEWhFo6aKUuLchs+AV4ssYdyuBbQJZGcBk=
 github.com/mindprince/gonvml v0.0.0-20180514031326-b364b296c732 h1:Dl/79RxNt1t6AYIMhKzyofqooXgw6+LZtAN4EIXRLCk=
 github.com/mindprince/gonvml v0.0.0-20180514031326-b364b296c732/go.mod h1:2eu9pRWp8mo84xCg6KswZ+USQHjwgRhNp06sozOdsTY=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=

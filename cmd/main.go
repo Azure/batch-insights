@@ -13,12 +13,8 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
 
-	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/dcgm"
+	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/nvml"
 )
-
-if err := dcgm.Init(dcgm.Embedded); err != nil {
-	log.Panicln(err)
-}
 
 var IS_PLATFORM_WINDOWS = runtime.GOOS == "windows"
 
@@ -51,6 +47,17 @@ func getDiskToWatch() []string {
 }
 
 func main() {
+	nvml.Init()
+	defer nvml.Shutdown()
+
+	count, err := nvml.GetDeviceCount()
+
+	if err != nil {
+		fmt.Println("Error getting device count:", err)
+	}
+
+	fmt.Printf("GPU count?: %v", count)
+
 	printSystemInfo()
 	listenForStats()
 }
