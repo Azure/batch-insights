@@ -13,9 +13,14 @@ import sys
 import psutil
 from applicationinsights import TelemetryClient
 
-VERSION = "0.0.1.1"
-_DEFAULT_STATS_UPDATE_INTERVAL = 5
+try:
+    from pynvml import *
+except:
+    pass
 
+VERSION = "0.0.1.1"
+_DEFAULT_STATS_UPDATE_INTERVAL = 15
+PROCESSES_TO_WATCH = ['3dsmax.exe', '3dsmaxcmd.exe', '3dsmaxio.exe', '3dsmaxcmdio.exe', 'Render.exe', 'kick.exe', 'Commandline.exe', 'CINEMA 4D.exe', 'vray.exe', 'maya.exe', 'mayabatch.exe', 'blender.exe']
 
 def setup_logger():
     # logger defines
@@ -94,13 +99,17 @@ class NodeStats:
                  num_pids=0,
                  cpu_count=0,
                  cpu_percent=None,
+                 gpu_count=0,
+                 gpu_percent=None, # list
+                 gpu_mem_percent=None, # list
                  mem_total=0,
                  mem_avail=0,
                  swap_total=0,
                  swap_avail=0,
                  disk_io=None,
                  disk_usage=None,
-                 net=None):
+                 net=None,
+                 process_list=None):
         """
         Map the attributes
         """
@@ -108,6 +117,9 @@ class NodeStats:
         self.num_pids = num_pids
         self.cpu_count = cpu_count
         self.cpu_percent = cpu_percent
+        self.gpu_count = gpu_count
+        self.gpu_percent = gpu_percent
+        self.gpu_mem_percent = gpu_mem_percent
         self.mem_total = mem_total
         self.mem_avail = mem_avail
         self.swap_total = swap_total
@@ -115,6 +127,8 @@ class NodeStats:
         self.disk_io = disk_io or NodeIOStats()
         self.disk_usage = disk_usage or dict()
         self.net = net or NodeIOStats()
+        # Tuple (proc name, cpu %)
+        self.process_list = process_list
 
     @property
     def mem_used(self):
@@ -213,25 +227,55 @@ class NodeStatsCollector:
 
         swap_total, _, swap_avail, _, _, _ = psutil.swap_memory()
 
+        # Tuple (proc name, CPU %)
+        process_list = list(((proc.info['name'], proc.cpu_percent(interval=1)) for proc in psutil.process_iter(attrs=['name']) if proc.info["name"] in PROCESSES_TO_WATCH))
+
+        gpu_count = 0
+        gpu_percent = None
+        gpu_mem_percent = None
+
+        try:
+            nvmlInit()
+            logger.info('NVIDIA Driver version {}'.format(nvmlSystemGetDriverVersion()))
+            gpu_count = nvmlDeviceGetCount()
+            gpu_percent = []
+            gpu_mem_percent = []
+            for i in range(gpu_count):
+                handle = nvmlDeviceGetHandleByIndex(i)
+                utilization = nvmlDeviceGetUtilizationRates(handle)
+                logger.info('Device {}'.format(nvmlDeviceGetName(handle)))
+                gpu_percent.append(utilization.gpu)
+                gpu_mem_percent.append(utilization.memory)
+            nvmlShutdown()
+        except Exception as e:
+            logger.error('Could not retrieve GPU stats: {}'.format(e))
+
         stats = NodeStats(
             cpu_count=psutil.cpu_count(),
             cpu_percent=psutil.cpu_percent(interval=None, percpu=True),
             num_pids=len(psutil.pids()),
 
-        # Memory
+            gpu_count=gpu_count,
+            gpu_percent=gpu_percent,
+            gpu_mem_percent=gpu_mem_percent,
+
+            # Memory
             mem_total=mem.total,
             mem_avail=mem.available,
             swap_total=swap_total,
             swap_avail=swap_avail,
 
-        # Disk IO
+            # Disk IO
             disk_io=disk_stats,
 
-        # Disk usage
+            # Disk usage
             disk_usage=disk_usage,
 
-        # Net transfer
+            # Net transfer
             net=net_stats,
+
+            # Active rendering processes with CPU
+            process_list=process_list
         )
         del mem
         return stats
@@ -272,6 +316,16 @@ class NodeStatsCollector:
             client.track_metric("Disk usage", disk_usage.used, properties={"Disk": name})
             client.track_metric("Disk free", disk_usage.free, properties={"Disk": name})
 
+        if stats.process_list:
+            for process_name, cpu in stats.process_list:
+                props = {"Process": process_name, "PoolName": self.pool_id, "ComputeNode": self.node_id}
+                client.track_metric("ActiveProcess", cpu, properties=props)
+
+        if stats.gpu_count > 0:
+            for gpu_n in range(0, stats.gpu_count):
+                client.track_metric("Gpu usage", stats.gpu_percent[gpu_n], properties={"Gpu #": gpu_n})
+                client.track_metric("Gpu memory usage", stats.gpu_mem_percent[gpu_n], properties={"Gpu #": gpu_n})
+
         client.track_metric("Memory used", stats.mem_used)
         client.track_metric("Memory available", stats.mem_avail)
         client.track_metric("Disk read", stats.disk_io.read_bps)
@@ -292,7 +346,15 @@ class NodeStatsCollector:
         logger.info("Disk usage:")
         for name, disk_usage in stats.disk_usage.items():
             logger.info("  - %s: %i/%i (%i%%)", name, disk_usage.used, disk_usage.total, disk_usage.percent)
-            
+
+        if stats.process_list:
+            for process_name, cpu in stats.process_list:
+                logger.info("ActiveProcess: %s (CPU %d%%)", process_name, cpu)
+
+        if stats.gpu_count > 0:
+            for gpu_n in range(0, stats.gpu_count):
+                logger.info("GPU %d%%: %d%% Memory: %d%%", gpu_n, stats.gpu_percent[gpu_n], stats.gpu_mem_percent[gpu_n])
+
         logger.info("-------------------------------------")
         logger.info("")
 
