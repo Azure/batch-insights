@@ -1,6 +1,6 @@
 package main
 
-import "github.com/Azure/batch-insights/lib"
+import "github.com/Azure/batch-insights/pkg"
 
 func main() {
 	batchinsights.PrintSystemInfo()
