@@ -3,13 +3,26 @@
 Azure Batch Insights is a tool used to get system statistics for your Azure Batch account nodes.
 
 ## Usage (New)
-Set 3 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs. Then set the start task user to be `Pool Admin`(`Task admin` might work too)
 
- * `APP_INSIGHTS_APP_ID`: This is your app insight application id
+### Create Application Insights account
+
+1. Goto the [Azure portal](https://portal.azure.com)
+2. Search for [Application Insights](https://ms.portal.azure.com/#blade/HubsExtension/Resources/resourceType/microsoft.insights%2Fcomponents)
+3. Create or use an existing one(Application type input doesn't matter)
+
+### Configure your Azure Batch pool start task
+Set 3 environment variables in your start task. Make sure this is set as a Batch environment variable rather than exporting. Without the Batch environment variable it will not show up in [Batch Explorer](https://azure.github.io/BatchExplorer). Then set the start task user to be `Pool Admin`(`Task admin` might work too)
+
+
+* `APP_INSIGHTS_APP_ID`: This is your app insight application id
+
+_On the application insight blade in the Azure Portal_
 
 ![](docs/images/app-id.png)
 
- * `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
+* `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
+
+_On the application insight blade in the Azure Portal_
 
 ![](docs/images/inst-key.png)
 
@@ -65,11 +78,11 @@ python nodestats.py > node-stats.log 2>&1 &
 
 ## View data
 
-### Option 1: BatchLabs
-BatchLabs is a desktop app used to manage, debug and monitor your azure batch accounts. You can download it [here](https://azure.github.io/BatchLabs)
+### Option 1: [Batch Explorer](https://azure.github.io/BatchExplorer)
+BatchLabs is a desktop app used to manage, debug and monitor your azure batch accounts. You can download it [here](https://azure.github.io/BatchExplorer)
 If you followed the getting started instruction batchlabs should show you the statistics for each of your pool.
 
-![](docs/images/batchlabs.png)
+![](docs/images/batchexplorer.png)
 
 ## Option 2: 
 Use the app insights tools to build your own query on the [Azure Portal](https://ms.portal.azure.com/#blade/HubsExtension/Resources/resourceType/microsoft.insights%2Fcomponents)
