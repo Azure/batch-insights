@@ -1,7 +1,9 @@
-# batch-insights
+# Batch Insights
+
+Azure Batch Insights is a tool used to get system statistics for your Azure Batch account nodes.
 
 ## Usage (New)
-Set 2 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs. Then set the start task user to be `Pool Admin`(`Task admin` might work too)
+Set 3 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs. Then set the start task user to be `Pool Admin`(`Task admin` might work too)
 
  * `APP_INSIGHTS_APP_ID`: This is your app insight application id
 
@@ -11,11 +13,25 @@ Set 2 environment variables in your start task.  Make sure this is set as a Batc
 
 ![](docs/images/inst-key.png)
 
+* `BATCH_INSIGHTS_DOWNLOAD_URL`: This is the link to the exe to run.
+To find this go to the [releases](https://github.com/Azure/batch-insights/releases) and get the link to the release you need
+
+For example:
+* `Linux`: https://github.com/Azure/batch-insights/releases/download/go-beta.1/batch-insights
+* `Windows` : https://github.com/Azure/batch-insights/releases/download/go-beta.1/batch-insights.exe
+
 ### Linux
 
-ADd this to your start task
+Add this to your start task
 ```bash
-/bin/bash -c 'set -e;wget "$URL" -o ./batch-insights;chmod +x ./batch-insights;./batch-insights > node-stats.log &'
+/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash'
+```
+### Windows
+
+Add this to your start task
+```batch
+cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1'))"
+
 ```
 
 ## Python Usage (Old)
