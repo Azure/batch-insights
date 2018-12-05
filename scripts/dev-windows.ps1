@@ -2,14 +2,16 @@ $ErrorActionPreference = "Stop"
 
 $wd = $env:AZ_BATCH_TASK_WORKING_DIR
 
-Invoke-WebRequest -Uri https://dl.google.com/go/go1.11.2.windows-amd64.zip -OutFile go.zip
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+choco install -y golang git
 
-Expand-Archive go.zip -DestinationPath C:\GO
+git clone https://github.com/Azure/batch-insights -b feature/go
 
-$env:GOROOT = "C:\GO\"
-$env:PATH = "$GOROOT/bin;$env:PATH"
+Set-Location ./batch-insights
 
-$exe = "$wd/batch-insights.exe"
+go build
+
+$exe = "$wd/batch-insights/batch-insights.exe"
 
 # Delete if exists
 $exists = Get-ScheduledTask | Where-Object {$_.TaskName -like "batchappinsights" };
