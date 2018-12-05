@@ -44,10 +44,10 @@ func getDiskToWatch() []string {
 	}
 }
 
-func ListenForStats() {
+func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 	var diskIO = IOAggregator{}
 	var netIO = IOAggregator{}
-	var appInsightsService = createAppInsightsService()
+	var appInsightsService = createAppInsightsService(poolId, nodeId, appInsightsKey)
 
 	for _ = range time.Tick(STATS_POLL_RATE) {
 
@@ -123,6 +123,10 @@ func PrintSystemInfo() {
 	fmt.Printf("   OS: %s\n", runtime.GOOS)
 }
 
+func getConfiguration() {
+
+}
+
 func printStats(stats NodeStats) {
 	fmt.Printf("========================= Stats =========================\n")
 	fmt.Printf("Cpu percent:           %f%%, %v cpu(s)\n", avg(stats.cpuPercents), len(stats.cpuPercents))
@@ -151,13 +155,9 @@ func avg(array []float64) float64 {
 	return total / float64(len(array))
 }
 
-func createAppInsightsService() *AppInsightsService {
-	var key, keySet = os.LookupEnv("APP_INSIGHTS_INSTRUMENTATION_KEY")
-	var poolId = os.Getenv("AZ_BATCH_POOL_ID")
-	var nodeId = os.Getenv("AZ_BATCH_NODE_ID")
-
-	if keySet {
-		service := NewAppInsightsService(key, poolId, nodeId)
+func createAppInsightsService(poolId string, nodeId string, appInsightsKey string) *AppInsightsService {
+	if appInsightsKey != "" {
+		service := NewAppInsightsService(appInsightsKey, poolId, nodeId)
 		return &service
 	} else {
 		fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set will to upload to app insights")

@@ -1,8 +1,28 @@
 package main
 
-import "github.com/Azure/batch-insights/pkg"
+import (
+	"fmt"
+	"github.com/Azure/batch-insights/pkg"
+	"os"
+)
 
 func main() {
+	var appInsightsKey = os.Getenv("APP_INSIGHTS_INSTRUMENTATION_KEY")
+	var poolId = os.Getenv("AZ_BATCH_POOL_ID")
+	var nodeId = os.Getenv("AZ_BATCH_NODE_ID")
+
+	if len(os.Args) > 2 {
+		poolId = os.Args[1]
+		nodeId = os.Args[2]
+	}
+
+	if len(os.Args) > 3 {
+		appInsightsKey = os.Args[3]
+	}
+
 	batchinsights.PrintSystemInfo()
-	batchinsights.ListenForStats()
+	fmt.Printf("   Pool ID: %s\n", poolId)
+	fmt.Printf("   Node ID: %s\n", nodeId)
+	fmt.Printf("   Instrumentation Key: %s\n", appInsightsKey ? "xxxxx": "-")
+	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey)
 }

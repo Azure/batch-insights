@@ -47,6 +47,8 @@ cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile
 
 ```
 
+**Note: The script used above just download the executable at the `BATCH_INSIGHTS_DOWNLOAD_URL` url and run it in the background. You can download it some other way and start it separatly.**
+
 ## Python Usage (Old)
 
 ### Ubuntu
