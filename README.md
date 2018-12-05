@@ -13,6 +13,11 @@ Azure Batch Insights is a tool used to get system statistics for your Azure Batc
 ### Configure your Azure Batch pool start task
 Set 3 environment variables in your start task. Make sure this is set as a Batch environment variable rather than exporting. Without the Batch environment variable it will not show up in [Batch Explorer](https://azure.github.io/BatchExplorer). Then set the start task user to be `Pool Admin`(`Task admin` might work too)
 
+* `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
+
+_On the application insight blade in the Azure Portal_
+
+![](docs/images/inst-key.png)
 
 * `APP_INSIGHTS_APP_ID`: This is your app insight application id
 
@@ -20,11 +25,6 @@ _On the application insight blade in the Azure Portal_
 
 ![](docs/images/app-id.png)
 
-* `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
-
-_On the application insight blade in the Azure Portal_
-
-![](docs/images/inst-key.png)
 
 * `BATCH_INSIGHTS_DOWNLOAD_URL`: This is the link to the exe to run.
 To find this go to the [releases](https://github.com/Azure/batch-insights/releases) and get the link to the release you need
