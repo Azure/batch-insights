@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 $wd = $env:AZ_BATCH_TASK_WORKING_DIR
 
 Invoke-WebRequest -Uri https://dl.google.com/go/go1.11.2.windows-amd64.zip -OutFile go.zip
