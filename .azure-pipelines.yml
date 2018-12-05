@@ -1,0 +1,25 @@
+name: $(SourceBranch)$(Rev:.r)
+jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-16.04
+    steps:
+      - task: GoTool@0
+        displayName: 'Use Go 1.11'
+        inputs:
+          version: 1.11
+      - script: go build
+      - script: ls
+
+
+
+  - job: Windows
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+      - task: GoTool@0
+        displayName: 'Use Go 1.11'
+        inputs:
+          version: 1.11
+      - script: go build
+      - script: ls
