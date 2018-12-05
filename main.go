@@ -23,6 +23,11 @@ func main() {
 	batchinsights.PrintSystemInfo()
 	fmt.Printf("   Pool ID: %s\n", poolId)
 	fmt.Printf("   Node ID: %s\n", nodeId)
-	fmt.Printf("   Instrumentation Key: %s\n", appInsightsKey ? "xxxxx": "-")
+
+	hiddenKey := "-"
+	if appInsightsKey != "" {
+		hiddenKey = "xxxxx"
+	}
+	fmt.Printf("   Instrumentation Key: %s\n", hiddenKey)
 	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey)
 }
