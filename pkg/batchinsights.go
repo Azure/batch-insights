@@ -53,7 +53,6 @@ func ListenForStats() {
 
 		v, _ := mem.VirtualMemory()
 		var cpus, err = cpu.Percent(0, true)
-		fmt.Println(cpus)
 		if err != nil {
 			fmt.Println(err)
 		}
