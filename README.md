@@ -1,6 +1,6 @@
 # batch-insights
 
-## Usage
+## Usage (New)
 Set 2 environment variables in your start task.  Make sure this is set as a Batch environment variable rather than exporting before running the `nodestats.py` script.  Without the Batch environment variable it will not show up in Batch Labs. Then set the start task user to be `Pool Admin`(`Task admin` might work too)
 
  * `APP_INSIGHTS_APP_ID`: This is your app insight application id
@@ -10,6 +10,15 @@ Set 2 environment variables in your start task.  Make sure this is set as a Batc
  * `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
 
 ![](docs/images/inst-key.png)
+
+### Linux
+
+ADd this to your start task
+```bash
+/bin/bash -c 'set -e;wget "$URL" -o ./batch-insights;chmod +x ./batch-insights;./batch-insights > node-stats.log &'
+```
+
+## Python Usage (Old)
 
 ### Ubuntu
 Add this command in your start task commandLine
