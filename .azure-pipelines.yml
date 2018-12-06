@@ -1,0 +1,49 @@
+name: $(SourceBranch)$(Rev:.r)
+jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-16.04
+    steps:
+      - task: GoTool@0
+        displayName: 'Use Go 1.11'
+        inputs:
+          version: 1.11
+
+      - script: go build
+        displayName: Build
+
+      - script: ls
+
+      - task: CopyFiles@2
+        inputs:
+          contents: batch-insights
+          targetFolder: $(Build.ArtifactStagingDirectory)
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          artifactName: 'linux' 
+
+
+  - job: Windows
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+      - task: GoTool@0
+        displayName: 'Use Go 1.11'
+        inputs:
+          version: 1.11
+
+      - script: go build
+        displayName: Build
+
+      - script: ls
+
+      - task: CopyFiles@2
+        inputs:
+          contents: batch-insights.exe
+          targetFolder: $(Build.ArtifactStagingDirectory)
+          
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: $(Build.ArtifactStagingDirectory)
+          artifactName: 'windows' 
