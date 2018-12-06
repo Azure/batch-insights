@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-
 	gpuTest()
 	var appInsightsKey = os.Getenv("APP_INSIGHTS_INSTRUMENTATION_KEY")
 	var poolId = os.Getenv("AZ_BATCH_POOL_ID")

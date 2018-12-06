@@ -1,5 +1,4 @@
 set -e
-rm /etc/apt/sources.list.d/cuda*
 apt remove nvidia-cuda-toolkit
 apt remove nvidia-*
 apt update
