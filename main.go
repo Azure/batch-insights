@@ -7,7 +7,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/nvml"
+	"github.com/mindprince/gonvml"
 )
 
 func main() {
@@ -56,32 +56,119 @@ P2P Available  : {{if not .Topology}}None{{else}}{{range .Topology}}
 )
 
 func gpuTest() {
-	nvml.Init()
-	defer nvml.Shutdown()
-
-	count, err := nvml.GetDeviceCount()
+	err := gonvml.Initialize()
 	if err != nil {
-		log.Panicln("Error getting device count:", err)
+		fmt.Println("Error while loading nvml")
+		fmt.Println(err)
+		return
 	}
+	defer gonvml.Shutdown()
+	fmt.Printf("Initialize() took %v\n", time.Since(start))
 
-	driverVersion, err := nvml.GetDriverVersion()
+	driverVersion, err := gonvml.SystemDriverVersion()
 	if err != nil {
-		log.Panicln("Error getting driver version:", err)
+		fmt.Printf("SystemDriverVersion() error: %v\n", err)
+		return
 	}
+	fmt.Printf("SystemDriverVersion(): %v\n", driverVersion)
 
-	t := template.Must(template.New("Device").Parse(DEVICEINFO))
+	numDevices, err := gonvml.DeviceCount()
+	if err != nil {
+		fmt.Printf("DeviceCount() error: %v\n", err)
+		return
+	}
+	fmt.Printf("DeviceCount(): %v\n", numDevices)
 
-	fmt.Printf("Driver Version : %5v\n", driverVersion)
-	for i := uint(0); i < count; i++ {
-		device, err := nvml.NewDevice(i)
+	for i := 0; i < int(numDevices); i++ {
+		dev, err := gonvml.DeviceHandleByIndex(uint(i))
 		if err != nil {
-			log.Panicf("Error getting device %d: %v\n", i, err)
+			fmt.Printf("\tDeviceHandleByIndex() error: %v\n", err)
+			return
 		}
 
-		fmt.Printf("GPU %12s %d\n", ":", i)
-		err = t.Execute(os.Stdout, device)
+		minorNumber, err := dev.MinorNumber()
 		if err != nil {
-			log.Panicln("Template error:", err)
+			fmt.Printf("\tdev.MinorNumber() error: %v\n", err)
+			return
 		}
+		fmt.Printf("\tminorNumber: %v\n", minorNumber)
+
+		uuid, err := dev.UUID()
+		if err != nil {
+			fmt.Printf("\tdev.UUID() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tuuid: %v\n", uuid)
+
+		name, err := dev.Name()
+		if err != nil {
+			fmt.Printf("\tdev.Name() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tname: %v\n", name)
+
+		totalMemory, usedMemory, err := dev.MemoryInfo()
+		if err != nil {
+			fmt.Printf("\tdev.MemoryInfo() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tmemory.total: %v, memory.used: %v\n", totalMemory, usedMemory)
+
+		gpuUtilization, memoryUtilization, err := dev.UtilizationRates()
+		if err != nil {
+			fmt.Printf("\tdev.UtilizationRates() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tutilization.gpu: %v, utilization.memory: %v\n", gpuUtilization, memoryUtilization)
+
+		powerDraw, err := dev.PowerUsage()
+		if err != nil {
+			fmt.Printf("\tdev.PowerUsage() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tpower.draw: %v\n", powerDraw)
+
+		averagePowerDraw, err := dev.AveragePowerUsage(10 * time.Second)
+		if err != nil {
+			fmt.Printf("\tdev.AveragePowerUsage() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\taverage power.draw for last 10s: %v\n", averagePowerDraw)
+
+		averageGPUUtilization, err := dev.AverageGPUUtilization(10 * time.Second)
+		if err != nil {
+			fmt.Printf("\tdev.AverageGPUUtilization() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\taverage utilization.gpu for last 10s: %v\n", averageGPUUtilization)
+
+		temperature, err := dev.Temperature()
+		if err != nil {
+			fmt.Printf("\tdev.Temperature() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\ttemperature.gpu: %v C\n", temperature)
+
+		fanSpeed, err := dev.FanSpeed()
+		if err != nil {
+			fmt.Printf("\tdev.FanSpeed() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tfan.speed: %v%%\n", fanSpeed)
+
+		encoderUtilization, _, err := dev.EncoderUtilization()
+		if err != nil {
+			fmt.Printf("\tdev.EncoderUtilization() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tutilization.encoder: %d\n", encoderUtilization)
+
+		decoderUtilization, _, err := dev.DecoderUtilization()
+		if err != nil {
+			fmt.Printf("\tdev.DecoderUtilization() error: %v\n", err)
+			return
+		}
+		fmt.Printf("\tutilization.decoder: %d\n", decoderUtilization)
+		fmt.Println()
 	}
 }
