@@ -16,4 +16,6 @@ echo GO version $(go version)
 git clone https://github.com/Azure/batch-insights -b feature/go
 
 cd batch-insights
-go run > node-stats.log 2>&1 &
+go build
+
+./batch-insights > $AZ_BATCH_TASK_WORKING_DIR/node-stats.log 2>&1 &
