@@ -3,6 +3,8 @@ code.cloudfoundry.org/clock v0.0.0-20180518195852-02e53af36e6c/go.mod h1:QD9Lzhd
 github.com/Azure/batch-insights v0.0.0-20180614201012-6d427c8344af h1:egr4mBTro2rKGAXfOAkkW0MRcu+k14V/UiajbY0bqUo=
 github.com/Microsoft/ApplicationInsights-Go v0.4.2 h1:HIZoGXMiKNwAtMAgCSSX35j9mP+DjGF9ezfBvxMDLLg=
 github.com/Microsoft/ApplicationInsights-Go v0.4.2/go.mod h1:CukZ/G66zxXtI+h/VcVn3eVVDGDHfXM2zVILF7bMmsg=
+github.com/NVIDIA/gpu-monitoring-tools v0.0.0-20181114021304-b70474fb8511 h1:A9x/8mtuZ6Sg3QYV5bP2QCHQ53aLVaAd/G8EAZmujtg=
+github.com/NVIDIA/gpu-monitoring-tools v0.0.0-20181114021304-b70474fb8511/go.mod h1:nMOvShGpWaf0bXwXmeu4k+O4uziuaEI8pWzIj3BUrOA=
 github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f h1:5ZfJxyXo8KyX8DgGXC5B7ILL8y51fci/qYz2B4j8iLY=
 github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/dustin/go-humanize v0.0.0-20180713052910-9f541cc9db5d h1:lDrio3iIdNb0Gw9CgH7cQF+iuB5mOOjdJ9ERNJCBgb4=

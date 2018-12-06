@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/Azure/batch-insights/pkg"
 	"os"
+
+	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/nvml"
 )
 
 func main() {
