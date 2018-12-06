@@ -30,8 +30,11 @@ _On the application insight blade in the Azure Portal_
 To find this go to the [releases](https://github.com/Azure/batch-insights/releases) and get the link to the release you need
 
 For example:
-* `Linux`: https://github.com/Azure/batch-insights/releases/download/go-beta.1/batch-insights
-* `Windows` : https://github.com/Azure/batch-insights/releases/download/go-beta.1/batch-insights.exe
+* `Linux`: https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights
+* `Windows` : https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights.exe
+
+![](docs/images/release-links.png)
+
 
 ### Linux
 
