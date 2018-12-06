@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/Azure/batch-insights/pkg"
-	"log"
 	"os"
-	"text/template"
+	"time"
 
 	"github.com/mindprince/gonvml"
 )
