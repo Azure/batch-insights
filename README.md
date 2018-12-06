@@ -33,7 +33,7 @@ For example:
 * `Linux`: https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights
 * `Windows` : https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights.exe
 
-![](docs/images/download-links.png)
+![](docs/images/release-links.png)
 
 
 ### Linux
