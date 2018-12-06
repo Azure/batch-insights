@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/Azure/batch-insights/pkg"
+	"github.com/mxpv/nvml-go"
+	"log"
 	"os"
-	"time"
-
-	"github.com/mindprince/gonvml"
 )
 
 func main() {
@@ -36,139 +35,185 @@ func main() {
 	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey)
 }
 
-const (
-	DEVICEINFO = `UUID           : {{.UUID}}
-Model          : {{or .Model "N/A"}}
-Path           : {{.Path}}
-Power          : {{if .Power}}{{.Power}} W{{else}}N/A{{end}}
-Memory	       : {{if .Memory}}{{.Memory}} MiB{{else}}N/A{{end}}
-CPU Affinity   : {{if .CPUAffinity}}NUMA node{{.CPUAffinity}}{{else}}N/A{{end}}
-Bus ID         : {{.PCI.BusID}}
-BAR1           : {{if .PCI.BAR1}}{{.PCI.BAR1}} MiB{{else}}N/A{{end}}
-Bandwidth      : {{if .PCI.Bandwidth}}{{.PCI.Bandwidth}} MB/s{{else}}N/A{{end}}
-Cores          : {{if .Clocks.Cores}}{{.Clocks.Cores}} MHz{{else}}N/A{{end}}
-Memory         : {{if .Clocks.Memory}}{{.Clocks.Memory}} MHz{{else}}N/A{{end}}
-P2P Available  : {{if not .Topology}}None{{else}}{{range .Topology}}
-    	       	 {{.BusID}} - {{(.Link.String)}}{{end}}{{end}}
----------------------------------------------------------------------
-`
-)
-
 func gpuTest() {
-	start := time.Now()
-	err := gonvml.Initialize()
+	nvml, err := nvml.New("")
 	if err != nil {
-		fmt.Println("Error while loading nvml")
-		fmt.Println(err)
-		return
+		panic(err)
 	}
-	defer gonvml.Shutdown()
-	fmt.Printf("Initialize() took %v\n", time.Since(start))
 
-	driverVersion, err := gonvml.SystemDriverVersion()
+	defer nvml.Shutdown()
+
+	err = nvml.Init()
 	if err != nil {
-		fmt.Printf("SystemDriverVersion() error: %v\n", err)
-		return
+		panic(err)
 	}
-	fmt.Printf("SystemDriverVersion(): %v\n", driverVersion)
 
-	numDevices, err := gonvml.DeviceCount()
+	driverVersion, err := nvml.SystemGetDriverVersion()
 	if err != nil {
-		fmt.Printf("DeviceCount() error: %v\n", err)
-		return
+		panic(err)
 	}
-	fmt.Printf("DeviceCount(): %v\n", numDevices)
 
-	for i := 0; i < int(numDevices); i++ {
-		dev, err := gonvml.DeviceHandleByIndex(uint(i))
+	log.Printf("Driver version:\t%s", driverVersion)
+
+	nvmlVersion, err := nvml.SystemGetNVMLVersion()
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("NVML version:\t%s", nvmlVersion)
+
+	deviceCount, err := nvml.DeviceGetCount()
+	if err != nil {
+		panic(err)
+	}
+
+	for i := uint32(0); i < deviceCount; i++ {
+		handle, err := nvml.DeviceGetHandleByIndex(i)
 		if err != nil {
-			fmt.Printf("\tDeviceHandleByIndex() error: %v\n", err)
-			return
+			panic(err)
 		}
 
-		minorNumber, err := dev.MinorNumber()
-		if err != nil {
-			fmt.Printf("\tdev.MinorNumber() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\tminorNumber: %v\n", minorNumber)
+		name, err := nvml.DeviceGetName(handle)
+		log.Printf("Product name:\t%s", name)
 
-		uuid, err := dev.UUID()
+		brand, err := nvml.DeviceGetBrand(handle)
 		if err != nil {
-			fmt.Printf("\tdev.UUID() error: %v\n", err)
-			return
+			panic(err)
 		}
-		fmt.Printf("\tuuid: %v\n", uuid)
 
-		name, err := dev.Name()
-		if err != nil {
-			fmt.Printf("\tdev.Name() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\tname: %v\n", name)
+		log.Printf("Product Brand:\t%s", brand)
 
-		totalMemory, usedMemory, err := dev.MemoryInfo()
+		uuid, err := nvml.DeviceGetUUID(handle)
 		if err != nil {
-			fmt.Printf("\tdev.MemoryInfo() error: %v\n", err)
-			return
+			panic(err)
 		}
-		fmt.Printf("\tmemory.total: %v, memory.used: %v\n", totalMemory, usedMemory)
 
-		gpuUtilization, memoryUtilization, err := dev.UtilizationRates()
-		if err != nil {
-			fmt.Printf("\tdev.UtilizationRates() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\tutilization.gpu: %v, utilization.memory: %v\n", gpuUtilization, memoryUtilization)
+		log.Printf("GPU UUID:\t\t%s", uuid)
 
-		powerDraw, err := dev.PowerUsage()
+		fan, err := nvml.DeviceGetFanSpeed(handle)
 		if err != nil {
-			fmt.Printf("\tdev.PowerUsage() error: %v\n", err)
-			return
+			panic(err)
 		}
-		fmt.Printf("\tpower.draw: %v\n", powerDraw)
 
-		averagePowerDraw, err := dev.AveragePowerUsage(10 * time.Second)
-		if err != nil {
-			fmt.Printf("\tdev.AveragePowerUsage() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\taverage power.draw for last 10s: %v\n", averagePowerDraw)
-
-		averageGPUUtilization, err := dev.AverageGPUUtilization(10 * time.Second)
-		if err != nil {
-			fmt.Printf("\tdev.AverageGPUUtilization() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\taverage utilization.gpu for last 10s: %v\n", averageGPUUtilization)
-
-		temperature, err := dev.Temperature()
-		if err != nil {
-			fmt.Printf("\tdev.Temperature() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\ttemperature.gpu: %v C\n", temperature)
-
-		fanSpeed, err := dev.FanSpeed()
-		if err != nil {
-			fmt.Printf("\tdev.FanSpeed() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\tfan.speed: %v%%\n", fanSpeed)
-
-		encoderUtilization, _, err := dev.EncoderUtilization()
-		if err != nil {
-			fmt.Printf("\tdev.EncoderUtilization() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\tutilization.encoder: %d\n", encoderUtilization)
-
-		decoderUtilization, _, err := dev.DecoderUtilization()
-		if err != nil {
-			fmt.Printf("\tdev.DecoderUtilization() error: %v\n", err)
-			return
-		}
-		fmt.Printf("\tutilization.decoder: %d\n", decoderUtilization)
-		fmt.Println()
+		log.Printf("Fan Speed:\t\t%d", fan)
 	}
 }
+
+// func gpuTestLinux() {
+// 	start := time.Now()
+// 	err := gonvml.Initialize()
+// 	if err != nil {
+// 		fmt.Println("Error while loading nvml")
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	defer gonvml.Shutdown()
+// 	fmt.Printf("Initialize() took %v\n", time.Since(start))
+
+// 	driverVersion, err := gonvml.SystemDriverVersion()
+// 	if err != nil {
+// 		fmt.Printf("SystemDriverVersion() error: %v\n", err)
+// 		return
+// 	}
+// 	fmt.Printf("SystemDriverVersion(): %v\n", driverVersion)
+
+// 	numDevices, err := gonvml.DeviceCount()
+// 	if err != nil {
+// 		fmt.Printf("DeviceCount() error: %v\n", err)
+// 		return
+// 	}
+// 	fmt.Printf("DeviceCount(): %v\n", numDevices)
+
+// 	for i := 0; i < int(numDevices); i++ {
+// 		dev, err := gonvml.DeviceHandleByIndex(uint(i))
+// 		if err != nil {
+// 			fmt.Printf("\tDeviceHandleByIndex() error: %v\n", err)
+// 			return
+// 		}
+
+// 		minorNumber, err := dev.MinorNumber()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.MinorNumber() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tminorNumber: %v\n", minorNumber)
+
+// 		uuid, err := dev.UUID()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.UUID() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tuuid: %v\n", uuid)
+
+// 		name, err := dev.Name()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.Name() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tname: %v\n", name)
+
+// 		totalMemory, usedMemory, err := dev.MemoryInfo()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.MemoryInfo() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tmemory.total: %v, memory.used: %v\n", totalMemory, usedMemory)
+
+// 		gpuUtilization, memoryUtilization, err := dev.UtilizationRates()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.UtilizationRates() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tutilization.gpu: %v, utilization.memory: %v\n", gpuUtilization, memoryUtilization)
+
+// 		powerDraw, err := dev.PowerUsage()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.PowerUsage() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tpower.draw: %v\n", powerDraw)
+
+// 		averagePowerDraw, err := dev.AveragePowerUsage(10 * time.Second)
+// 		if err != nil {
+// 			fmt.Printf("\tdev.AveragePowerUsage() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\taverage power.draw for last 10s: %v\n", averagePowerDraw)
+
+// 		averageGPUUtilization, err := dev.AverageGPUUtilization(10 * time.Second)
+// 		if err != nil {
+// 			fmt.Printf("\tdev.AverageGPUUtilization() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\taverage utilization.gpu for last 10s: %v\n", averageGPUUtilization)
+
+// 		temperature, err := dev.Temperature()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.Temperature() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\ttemperature.gpu: %v C\n", temperature)
+
+// 		fanSpeed, err := dev.FanSpeed()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.FanSpeed() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tfan.speed: %v%%\n", fanSpeed)
+
+// 		encoderUtilization, _, err := dev.EncoderUtilization()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.EncoderUtilization() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tutilization.encoder: %d\n", encoderUtilization)
+
+// 		decoderUtilization, _, err := dev.DecoderUtilization()
+// 		if err != nil {
+// 			fmt.Printf("\tdev.DecoderUtilization() error: %v\n", err)
+// 			return
+// 		}
+// 		fmt.Printf("\tutilization.decoder: %d\n", decoderUtilization)
+// 		fmt.Println()
+// 	}
+// }
