@@ -3,13 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/Azure/batch-insights/pkg"
-	"github.com/mxpv/nvml-go"
-	"log"
 	"os"
 )
 
 func main() {
-	gpuTest()
 	var appInsightsKey = os.Getenv("APP_INSIGHTS_INSTRUMENTATION_KEY")
 	var poolId = os.Getenv("AZ_BATCH_POOL_ID")
 	var nodeId = os.Getenv("AZ_BATCH_NODE_ID")
@@ -35,69 +32,69 @@ func main() {
 	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey)
 }
 
-func gpuTest() {
-	nvml, err := nvml.New("")
-	if err != nil {
-		panic(err)
-	}
+// func gpuTest() {
+// 	nvml, err := nvml.New("")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	defer nvml.Shutdown()
+// 	defer nvml.Shutdown()
 
-	err = nvml.Init()
-	if err != nil {
-		panic(err)
-	}
+// 	err = nvml.Init()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	driverVersion, err := nvml.SystemGetDriverVersion()
-	if err != nil {
-		panic(err)
-	}
+// 	driverVersion, err := nvml.SystemGetDriverVersion()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	log.Printf("Driver version:\t%s", driverVersion)
+// 	log.Printf("Driver version:\t%s", driverVersion)
 
-	nvmlVersion, err := nvml.SystemGetNVMLVersion()
-	if err != nil {
-		panic(err)
-	}
+// 	nvmlVersion, err := nvml.SystemGetNVMLVersion()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	log.Printf("NVML version:\t%s", nvmlVersion)
+// 	log.Printf("NVML version:\t%s", nvmlVersion)
 
-	deviceCount, err := nvml.DeviceGetCount()
-	if err != nil {
-		panic(err)
-	}
+// 	deviceCount, err := nvml.DeviceGetCount()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	for i := uint32(0); i < deviceCount; i++ {
-		handle, err := nvml.DeviceGetHandleByIndex(i)
-		if err != nil {
-			panic(err)
-		}
+// 	for i := uint32(0); i < deviceCount; i++ {
+// 		handle, err := nvml.DeviceGetHandleByIndex(i)
+// 		if err != nil {
+// 			panic(err)
+// 		}
 
-		name, err := nvml.DeviceGetName(handle)
-		log.Printf("Product name:\t%s", name)
+// 		name, err := nvml.DeviceGetName(handle)
+// 		log.Printf("Product name:\t%s", name)
 
-		brand, err := nvml.DeviceGetBrand(handle)
-		if err != nil {
-			panic(err)
-		}
+// 		brand, err := nvml.DeviceGetBrand(handle)
+// 		if err != nil {
+// 			panic(err)
+// 		}
 
-		log.Printf("Product Brand:\t%s", brand)
+// 		log.Printf("Product Brand:\t%s", brand)
 
-		uuid, err := nvml.DeviceGetUUID(handle)
-		if err != nil {
-			panic(err)
-		}
+// 		uuid, err := nvml.DeviceGetUUID(handle)
+// 		if err != nil {
+// 			panic(err)
+// 		}
 
-		log.Printf("GPU UUID:\t\t%s", uuid)
+// 		log.Printf("GPU UUID:\t\t%s", uuid)
 
-		fan, err := nvml.DeviceGetFanSpeed(handle)
-		if err != nil {
-			panic(err)
-		}
+// 		fan, err := nvml.DeviceGetFanSpeed(handle)
+// 		if err != nil {
+// 			panic(err)
+// 		}
 
-		log.Printf("Fan Speed:\t\t%d", fan)
-	}
-}
+// 		log.Printf("Fan Speed:\t\t%d", fan)
+// 	}
+// }
 
 // func gpuTestLinux() {
 // 	start := time.Now()

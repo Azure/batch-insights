@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/Azure/batch-insights/nvml"
 	"github.com/dustin/go-humanize"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -47,6 +48,31 @@ func getDiskToWatch() []string {
 func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 	var diskIO = IOAggregator{}
 	var netIO = IOAggregator{}
+	var nvmlClient, err = nvml.New()
+
+	if err != nil {
+		fmt.Println("No GPU detected. Nvidia driver might be missing")
+	} else {
+		err = nvmlClient.Init()
+	}
+
+	if err != nil {
+		fmt.Println("Error while loading the GPU")
+		nvmlClient = nil
+	} else {
+		defer nvmlClient.Shutdown()
+	}
+
+	if nvmlClient != nil {
+		deviceCount, err := nvmlClient.GetDeviceCount()
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("NVML is loaded found %d gpus\n", deviceCount)
+		}
+	}
+
 	var appInsightsService = createAppInsightsService(poolId, nodeId, appInsightsKey)
 
 	for _ = range time.Tick(STATS_POLL_RATE) {
