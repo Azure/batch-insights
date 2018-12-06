@@ -5,6 +5,7 @@ import (
 	"github.com/Azure/batch-insights/pkg"
 	"log"
 	"os"
+	"text/template"
 
 	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/nvml"
 )
