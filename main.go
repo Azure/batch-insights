@@ -38,6 +38,24 @@ func main() {
 	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey)
 }
 
+const (
+	DEVICEINFO = `UUID           : {{.UUID}}
+Model          : {{or .Model "N/A"}}
+Path           : {{.Path}}
+Power          : {{if .Power}}{{.Power}} W{{else}}N/A{{end}}
+Memory	       : {{if .Memory}}{{.Memory}} MiB{{else}}N/A{{end}}
+CPU Affinity   : {{if .CPUAffinity}}NUMA node{{.CPUAffinity}}{{else}}N/A{{end}}
+Bus ID         : {{.PCI.BusID}}
+BAR1           : {{if .PCI.BAR1}}{{.PCI.BAR1}} MiB{{else}}N/A{{end}}
+Bandwidth      : {{if .PCI.Bandwidth}}{{.PCI.Bandwidth}} MB/s{{else}}N/A{{end}}
+Cores          : {{if .Clocks.Cores}}{{.Clocks.Cores}} MHz{{else}}N/A{{end}}
+Memory         : {{if .Clocks.Memory}}{{.Clocks.Memory}} MHz{{else}}N/A{{end}}
+P2P Available  : {{if not .Topology}}None{{else}}{{range .Topology}}
+    	       	 {{.BusID}} - {{(.Link.String)}}{{end}}{{end}}
+---------------------------------------------------------------------
+`
+)
+
 func gpuTest() {
 	nvml.Init()
 	defer nvml.Shutdown()
