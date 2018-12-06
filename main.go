@@ -55,6 +55,7 @@ P2P Available  : {{if not .Topology}}None{{else}}{{range .Topology}}
 )
 
 func gpuTest() {
+	start := time.Now()
 	err := gonvml.Initialize()
 	if err != nil {
 		fmt.Println("Error while loading nvml")
