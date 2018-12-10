@@ -20,7 +20,7 @@ export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
 echo GO version $(go version)
 
-git clone https://github.com/Azure/batch-insights
+git clone https://github.com/Azure/batch-insights -b feature/go-gpu
 
 cd batch-insights
 go build
