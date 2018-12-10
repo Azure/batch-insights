@@ -6,6 +6,10 @@ import (
 	nvml_win "github.com/mxpv/nvml-go"
 )
 
+type WinDevice struct {
+	handle nvml_win.Device
+}
+
 func New() (*WinNvmlClient, error) {
 	api, err := nvml_win.New("")
 
@@ -42,7 +46,8 @@ func (client *WinNvmlClient) GetDeviceCount() (uint, error) {
 }
 
 func (client *WinNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtilization, error) {
-	value, err := client.api.DeviceGetUtilizationRates(nvml_win.Device(device))
+	winDevice := device.(WinDevice)
+	value, err := client.api.DeviceGetUtilizationRates(winDevice.handle)
 	if err != nil {
 		return GPUUtilization{GPU: 0, Memory: 0}, err
 	}
@@ -55,7 +60,8 @@ func (client *WinNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtiliz
 }
 
 func (client *WinNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error) {
-	use, err := client.api.DeviceGetMemoryInfo(nvml_win.Device(device))
+	winDevice := device.(WinDevice)
+	use, err := client.api.DeviceGetMemoryInfo(winDevice.handle)
 	if err != nil {
 		return Memory(use), err
 	}
@@ -63,9 +69,9 @@ func (client *WinNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error) 
 }
 
 func (client *WinNvmlClient) DeviceGetHandleByIndex(index uint) (Device, error) {
-	device, err := client.api.DeviceGetHandleByIndex(uint32(index))
+	handle, err := client.api.DeviceGetHandleByIndex(uint32(index))
 	if err != nil {
-		return Device(device), err
+		return Device(WinDevice{handle: handle}), err
 	}
-	return Device(device), nil
+	return Device(WinDevice{handle: handle}), nil
 }

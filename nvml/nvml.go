@@ -21,4 +21,5 @@ type Memory struct {
 	Used  uint64 // Allocated FB memory (in bytes).
 }
 
-type Device uintptr
+type Device interface {
+}

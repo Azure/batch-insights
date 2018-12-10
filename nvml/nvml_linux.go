@@ -6,6 +6,8 @@ import (
 	nvml_linux "github.com/mindprince/gonvml"
 )
 
+type LinuxDevice = nvml_linux.Device
+
 type LinuxNvmlClient struct {
 }
 
@@ -16,7 +18,7 @@ func New() (*LinuxNvmlClient, error) {
 }
 
 func (client *LinuxNvmlClient) Init() error {
-	return nvml_linux.Init()
+	return nvml_linux.Initialize()
 }
 
 func (client *LinuxNvmlClient) Shutdown() error {
@@ -33,7 +35,8 @@ func (client *LinuxNvmlClient) GetDeviceCount() (uint, error) {
 }
 
 func (client *LinuxNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtilization, error) {
-	value, err := nvml_linux.UtilizationRates(nvml_linux.Device{dev: device})
+	linuxDevice := device.(LinuxDevice)
+	value, err := nvmlDevice.UtilizationRates()
 	if err != nil {
 		return GPUUtilization{GPU: 0, Memory: 0}, err
 	}
@@ -46,7 +49,8 @@ func (client *LinuxNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtil
 }
 
 func (client *LinuxNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error) {
-	use, err := nvml_linux.MemoryInfo(nvml_linux.Device{dev: device})
+	linuxDevice := device.(LinuxDevice)
+	use, err := linuxDevice.MemoryInfo()
 	if err != nil {
 		return Memory(use), err
 	}
@@ -56,7 +60,7 @@ func (client *LinuxNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error
 func (client *LinuxNvmlClient) DeviceGetHandleByIndex(index uint) (Device, error) {
 	device, err := nvml_linux.DeviceHandleByIndex(uint32(index))
 	if err != nil {
-		return Device(device.dev), err
+		return Device(device), err
 	}
-	return Device(device.dev), nil
+	return Device(device), nil
 }
