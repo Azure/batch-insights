@@ -36,14 +36,14 @@ func (client *LinuxNvmlClient) GetDeviceCount() (uint, error) {
 
 func (client *LinuxNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtilization, error) {
 	linuxDevice := device.(LinuxDevice)
-	value, err := linuxDevice.UtilizationRates()
+	gpu, memory, err := linuxDevice.UtilizationRates()
 	if err != nil {
 		return GPUUtilization{GPU: 0, Memory: 0}, err
 	}
 
 	use := GPUUtilization{
-		GPU:    uint(value.GPU),
-		Memory: uint(value.Memory),
+		GPU:    gpu,
+		Memory: memory,
 	}
 	return use, nil
 }
