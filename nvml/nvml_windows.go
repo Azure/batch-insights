@@ -40,3 +40,32 @@ func (client *WinNvmlClient) GetDeviceCount() (uint, error) {
 
 	return uint(value), nil
 }
+
+func (client *WinNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtilization, error) {
+	value, err := client.api.DeviceGetUtilizationRates(nvml_win.Device(device))
+	if err != nil {
+		return GPUUtilization{GPU: 0, Memory: 0}, err
+	}
+
+	use := GPUUtilization{
+		GPU:    uint(value.GPU),
+		Memory: uint(value.Memory),
+	}
+	return use, nil
+}
+
+func (client *WinNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error) {
+	use, err := client.api.DeviceGetMemoryInfo(nvml_win.Device(device))
+	if err != nil {
+		return Memory(use), err
+	}
+	return Memory(use), nil
+}
+
+func (client *WinNvmlClient) DeviceGetHandleByIndex(index uint) (Device, error) {
+	device, err := client.api.DeviceGetHandleByIndex(uint32(index))
+	if err != nil {
+		return Device(device), err
+	}
+	return Device(device), nil
+}
