@@ -41,7 +41,7 @@ func (service AppInsightsService) UploadStats(stats NodeStats) {
 	}
 
 	client.TrackMetric("Memory used", float64(stats.memory.Used))
-	client.TrackMetric("Memory available", float64(stats.memory.Free))
+	client.TrackMetric("Memory available", float64(stats.memory.Total-stats.memory.Used))
 	client.TrackMetric("Disk read", float64(stats.diskIO.readBps))
 	client.TrackMetric("Disk write", float64(stats.diskIO.writeBps))
 	client.TrackMetric("Network read", float64(stats.netIO.readBps))
