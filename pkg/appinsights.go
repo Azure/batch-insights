@@ -30,8 +30,6 @@ func (service AppInsightsService) UploadStats(stats NodeStats) {
 	}
 
 	for _, usage := range stats.diskUsage {
-		// client.TrackMetric("Disk usage", disk_usage.used, properties={"Disk": name})
-		// client.TrackMetric("Disk free", disk_usage.free, properties={"Disk": name})
 		usedMetric := appinsights.NewMetricTelemetry("Disk usage", float64(usage.Used))
 		usedMetric.Properties["Disk"] = usage.Path
 		client.Track(usedMetric)
