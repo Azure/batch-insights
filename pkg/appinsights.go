@@ -46,5 +46,18 @@ func (service AppInsightsService) UploadStats(stats NodeStats) {
 	client.TrackMetric("Disk write", float64(stats.diskIO.writeBps))
 	client.TrackMetric("Network read", float64(stats.netIO.readBps))
 	client.TrackMetric("Network write", float64(stats.netIO.writeBps))
+
+	if len(stats.gpus) > 0 {
+		for cpuN, usage := range stats.gpus {
+			gpuMetric := appinsights.NewMetricTelemetry("Gpu usage", usage.GPU)
+			gpuMetric.Properties["GPU #"] = strconv.Itoa(cpuN)
+			client.Track(gpuMetric)
+
+			gpuMemoryMetric := appinsights.NewMetricTelemetry("Gpu memory usage", usage.Memory)
+			gpuMemoryMetric.Properties["GPU #"] = strconv.Itoa(cpuN)
+			client.Track(gpuMemoryMetric)
+		}
+	}
+
 	client.Channel().Flush()
 }

@@ -66,6 +66,7 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 			diskUsage:   getDiskUsage(),
 			diskIO:      getDiskIO(&diskIO),
 			netIO:       getNetIO(&netIO),
+			gpus:        gpuStatsCollector.GetStats(),
 		}
 
 		if appInsightsService != nil {
@@ -146,6 +147,13 @@ func printStats(stats NodeStats) {
 
 	if stats.netIO != nil {
 		fmt.Printf("NET IO: R:%sps, S:%sps\n", humanize.Bytes(stats.netIO.readBps), humanize.Bytes(stats.netIO.writeBps))
+	}
+
+	if len(stats.gpus) > 0 {
+		fmt.Printf("GPU(s) usage:\n")
+		for _, usage := range stats.gpus {
+			fmt.Printf("  - GPU: %f%%, Memory: %f%%\n", usage.GPU, usage.Memory)
+		}
 	}
 	fmt.Println()
 	fmt.Println()

@@ -10,7 +10,9 @@ type GPUStatsCollector struct {
 	deviceCount uint
 }
 
-type GPUStats struct {
+type GPUUsage struct {
+	GPU    float64
+	Memory float64
 }
 
 func NewGPUStatsCollector() GPUStatsCollector {
@@ -42,12 +44,12 @@ func NewGPUStatsCollector() GPUStatsCollector {
 	return GPUStatsCollector{}
 }
 
-func (gpu GPUStatsCollector) GetStats() []nvml.GPUUtilization {
+func (gpu GPUStatsCollector) GetStats() []GPUUsage {
 	if gpu.nvml == nil {
 		return nil
 	}
 
-	var uses []nvml.GPUUtilization
+	var uses []GPUUsage
 
 	for i := uint(0); i < gpu.deviceCount; i++ {
 		device, err := gpu.nvml.DeviceGetHandleByIndex(i)
@@ -70,8 +72,11 @@ func (gpu GPUStatsCollector) GetStats() []nvml.GPUUtilization {
 
 		fmt.Printf("Utilization (#%d): GPU: %d%%, Memory: %d%%\n", i, use.GPU, use.Memory)
 		fmt.Printf("Memory usage (#%d): Free: %d, Total: %d\n", i, memory.Free, memory.Total)
-
-		uses = append(uses, use)
+		usage := GPUUsage{
+			GPU:    float64(use.GPU),
+			Memory: float64(memory.Used) / float64(memory.Total) * 100,
+		}
+		uses = append(uses, usage)
 	}
 	return uses
 }
