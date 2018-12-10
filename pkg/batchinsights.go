@@ -48,6 +48,7 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 	var diskIO = IOAggregator{}
 	var netIO = IOAggregator{}
 	var gpuStatsCollector = NewGPUStatsCollector()
+	defer gpuStatsCollector.Shutdown()
 
 	var appInsightsService = createAppInsightsService(poolId, nodeId, appInsightsKey)
 
