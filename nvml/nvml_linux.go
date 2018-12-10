@@ -52,9 +52,9 @@ func (client *LinuxNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error
 	linuxDevice := device.(LinuxDevice)
 	total, used, err := linuxDevice.MemoryInfo()
 	if err != nil {
-		return Memory{used: used, total: total}, err
+		return Memory{Used: used, Total: total}, err
 	}
-	return Memory{used: used, total: total}, nil
+	return Memory{Used: used, Total: total}, nil
 }
 
 func (client *LinuxNvmlClient) DeviceGetHandleByIndex(index uint) (Device, error) {
