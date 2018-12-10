@@ -70,8 +70,6 @@ func (gpu GPUStatsCollector) GetStats() []GPUUsage {
 			fmt.Println(err)
 		}
 
-		fmt.Printf("Utilization (#%d): GPU: %d%%, Memory: %d%%\n", i, use.GPU, use.Memory)
-		fmt.Printf("Memory usage (#%d): Free: %d, Total: %d\n", i, memory.Free, memory.Total)
 		usage := GPUUsage{
 			GPU:    float64(use.GPU),
 			Memory: float64(memory.Used) / float64(memory.Total) * 100,
