@@ -8,7 +8,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 
-	"github.com/shirou/gopsutil/cpu"
+	"github.com/Azure/batch-insights/pkg/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
@@ -52,7 +52,7 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 	for _ = range time.Tick(STATS_POLL_RATE) {
 
 		v, _ := mem.VirtualMemory()
-		var cpus, err = cpu.Percent(0, true)
+		var cpus, err = cpu.PerCpuPercent()
 		if err != nil {
 			fmt.Println(err)
 		}
