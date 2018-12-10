@@ -33,7 +33,7 @@ func (client *LinuxNvmlClient) GetDeviceCount() (uint, error) {
 }
 
 func (client *LinuxNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtilization, error) {
-	value, err := nvml_linux.UtilizationRates(nvml_linux.Device({dev: device}))
+	value, err := nvml_linux.UtilizationRates(nvml_linux.Device{dev: device})
 	if err != nil {
 		return GPUUtilization{GPU: 0, Memory: 0}, err
 	}
@@ -46,7 +46,7 @@ func (client *LinuxNvmlClient) DeviceGetUtilizationRates(device Device) (GPUUtil
 }
 
 func (client *LinuxNvmlClient) DeviceGetMemoryInfo(device Device) (Memory, error) {
-	use, err := nvml_linux.MemoryInfo(nvml_linux.Device({dev: device}))
+	use, err := nvml_linux.MemoryInfo(nvml_linux.Device{dev: device})
 	if err != nil {
 		return Memory(use), err
 	}
