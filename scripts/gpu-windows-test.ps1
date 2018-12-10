@@ -10,7 +10,7 @@ git clone https://github.com/Azure/batch-insights -b feature/go-gpu
 
 Set-Location ./batch-insights
 
-go build
+go build -x
 
 $exe = "$wd/batch-insights/batch-insights.exe"
 
