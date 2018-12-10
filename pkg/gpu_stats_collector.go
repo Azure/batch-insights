@@ -42,10 +42,12 @@ func NewGPUStatsCollector() GPUStatsCollector {
 	return GPUStatsCollector{}
 }
 
-func (gpu GPUStatsCollector) GetStats() {
+func (gpu GPUStatsCollector) GetStats() []nvml.GPUUtilization {
 	if gpu.nvml == nil {
-		return
+		return nil
 	}
+
+	var uses []nvml.GPUUtilization
 
 	for i := uint(0); i < gpu.deviceCount; i++ {
 		device, err := gpu.nvml.DeviceGetHandleByIndex(i)
@@ -68,7 +70,10 @@ func (gpu GPUStatsCollector) GetStats() {
 
 		fmt.Printf("Utilization (#%d): GPU: %d%%, Memory: %d%%\n", i, use.GPU, use.Memory)
 		fmt.Printf("Memory usage (#%d): Free: %d, Total: %d\n", i, memory.Free, memory.Total)
+
+		uses = append(uses, use)
 	}
+	return uses
 }
 
 func (gpu GPUStatsCollector) Shutdown() {
