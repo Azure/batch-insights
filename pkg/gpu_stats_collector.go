@@ -24,7 +24,7 @@ func NewGPUStatsCollector() GPUStatsCollector {
 		err = nvmlClient.Init()
 
 		if err != nil {
-			fmt.Println("Error while loading the GPU", err)
+			fmt.Println("No GPU detected. Nvidia driver might be missing. Error while initializing NVML", err)
 			nvmlClient = nil
 		} else {
 			deviceCount, err := nvmlClient.GetDeviceCount()
