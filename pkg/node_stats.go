@@ -11,4 +11,5 @@ type NodeStats struct {
 	diskUsage   []*disk.UsageStat
 	diskIO      *IOStats
 	netIO       *IOStats
+	gpus        []GPUUsage
 }
