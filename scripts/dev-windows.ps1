@@ -1,12 +1,13 @@
 $ErrorActionPreference = "Stop"
 
 $wd = $env:AZ_BATCH_TASK_WORKING_DIR
+$branch = $env:BATCH_INSIGHTS_BRANCH
 
 Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco install -y golang git
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-git clone https://github.com/Azure/batch-insights
+git clone https://github.com/Azure/batch-insights -b $branch
 
 Set-Location ./batch-insights
 
