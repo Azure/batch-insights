@@ -92,6 +92,7 @@ func getDiskIO(diskIO *IOAggregator) *IOStats {
 		writeBytes += v.WriteBytes
 	}
 	var stats = diskIO.UpdateAggregates(readBytes, writeBytes)
+	fmt.Println("stats", stats);
 	return &stats
 }
 
