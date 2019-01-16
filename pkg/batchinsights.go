@@ -81,7 +81,7 @@ func getDiskIO(diskIO *IOAggregator) *IOStats {
 	var counters, err = disk.IOCounters()
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error while retrieving Disk IO", err)
 		return nil
 	}
 	var readBytes uint64 = 0
