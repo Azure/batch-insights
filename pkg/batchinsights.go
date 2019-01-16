@@ -2,51 +2,21 @@ package batchinsights
 
 import (
 	"fmt"
-	"os"
 	"runtime"
 	"time"
 
-	"github.com/dustin/go-humanize"
-
 	"github.com/Azure/batch-insights/pkg/cpu"
-	"github.com/shirou/gopsutil/disk"
+	"github.com/Azure/batch-insights/pkg/disk"
+	"github.com/Azure/batch-insights/pkg/utils"
+	"github.com/dustin/go-humanize"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
 )
 
-var IS_PLATFORM_WINDOWS = runtime.GOOS == "windows"
-
 const STATS_POLL_RATE = time.Duration(5) * time.Second
 
-func pathExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
-}
-
-func getDiskToWatch() []string {
-	if IS_PLATFORM_WINDOWS == true {
-		return []string{"C:/", "D:/"}
-	} else {
-		var osDisk = "/"
-		var userDisk = "/mnt/resources"
-		var exists, _ = pathExists(userDisk)
-
-		if !exists {
-			userDisk = "/mnt"
-		}
-		return []string{osDisk, userDisk}
-	}
-}
-
 func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
-	var diskIO = IOAggregator{}
-	var netIO = IOAggregator{}
+	var netIO = utils.IOAggregator{}
 	var gpuStatsCollector = NewGPUStatsCollector()
 	defer gpuStatsCollector.Shutdown()
 
@@ -63,8 +33,8 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 		var stats = NodeStats{
 			memory:      v,
 			cpuPercents: cpus,
-			diskUsage:   getDiskUsage(),
-			diskIO:      getDiskIO(&diskIO),
+			diskUsage:   disk.GetDiskUsage(),
+			diskIO:      disk.DiskIO(),
 			netIO:       getNetIO(&netIO),
 			gpus:        gpuStatsCollector.GetStats(),
 		}
@@ -77,26 +47,7 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 	}
 }
 
-func getDiskIO(diskIO *IOAggregator) *IOStats {
-	var counters, err = disk.IOCounters()
-
-	if err != nil {
-		fmt.Println("Error while retrieving Disk IO", err)
-		return nil
-	}
-	var readBytes uint64 = 0
-	var writeBytes uint64 = 0
-
-	for _, v := range counters {
-		readBytes += v.ReadBytes
-		writeBytes += v.WriteBytes
-	}
-	var stats = diskIO.UpdateAggregates(readBytes, writeBytes)
-	fmt.Println("stats", stats);
-	return &stats
-}
-
-func getNetIO(diskIO *IOAggregator) *IOStats {
+func getNetIO(diskIO *utils.IOAggregator) *utils.IOStats {
 	var counters, err = net.IOCounters(false)
 
 	if err != nil {
@@ -106,22 +57,6 @@ func getNetIO(diskIO *IOAggregator) *IOStats {
 		return &stats
 	}
 	return nil
-}
-
-func getDiskUsage() []*disk.UsageStat {
-	var disks = getDiskToWatch()
-	var stats []*disk.UsageStat
-
-	for _, diskPath := range disks {
-		usage, err := disk.Usage(diskPath)
-		if err == nil {
-			stats = append(stats, usage)
-		} else {
-			fmt.Println(err)
-		}
-	}
-
-	return stats
 }
 
 func PrintSystemInfo() {
@@ -143,11 +78,11 @@ func printStats(stats NodeStats) {
 	}
 
 	if stats.diskIO != nil {
-		fmt.Printf("Disk IO: R:%sps, W:%sps\n", humanize.Bytes(stats.diskIO.readBps), humanize.Bytes(stats.diskIO.writeBps))
+		fmt.Printf("Disk IO: R:%sps, W:%sps\n", humanize.Bytes(stats.diskIO.ReadBps), humanize.Bytes(stats.diskIO.WriteBps))
 	}
 
 	if stats.netIO != nil {
-		fmt.Printf("NET IO: R:%sps, S:%sps\n", humanize.Bytes(stats.netIO.readBps), humanize.Bytes(stats.netIO.writeBps))
+		fmt.Printf("NET IO: R:%sps, S:%sps\n", humanize.Bytes(stats.netIO.ReadBps), humanize.Bytes(stats.netIO.WriteBps))
 	}
 
 	if len(stats.gpus) > 0 {

@@ -43,13 +43,13 @@ func (service AppInsightsService) UploadStats(stats NodeStats) {
 		client.TrackMetric("Memory available", float64(stats.memory.Total-stats.memory.Used))
 	}
 	if stats.diskIO != nil {
-		client.TrackMetric("Disk read", float64(stats.diskIO.readBps))
-		client.TrackMetric("Disk write", float64(stats.diskIO.writeBps))
+		client.TrackMetric("Disk read", float64(stats.diskIO.ReadBps))
+		client.TrackMetric("Disk write", float64(stats.diskIO.WriteBps))
 	}
 
 	if stats.netIO != nil {
-		client.TrackMetric("Network read", float64(stats.netIO.readBps))
-		client.TrackMetric("Network write", float64(stats.netIO.writeBps))
+		client.TrackMetric("Network read", float64(stats.netIO.ReadBps))
+		client.TrackMetric("Network write", float64(stats.netIO.WriteBps))
 	}
 
 	if len(stats.gpus) > 0 {

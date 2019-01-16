@@ -1,4 +1,4 @@
-package batchinsights
+package utils
 
 import (
 	"time"
@@ -11,8 +11,8 @@ type IOAggregator struct {
 }
 
 type IOStats struct {
-	readBps  uint64
-	writeBps uint64
+	ReadBps  uint64
+	WriteBps uint64
 }
 
 func (aggregator *IOAggregator) UpdateAggregates(currentRead uint64, currentWrite uint64) IOStats {
@@ -32,7 +32,7 @@ func (aggregator *IOAggregator) UpdateAggregates(currentRead uint64, currentWrit
 	aggregator.lastWrite = currentWrite
 
 	return IOStats{
-		readBps:  readBps,
-		writeBps: writeBps,
+		ReadBps:  readBps,
+		WriteBps: writeBps,
 	}
 }
