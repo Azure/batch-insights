@@ -38,12 +38,19 @@ func (service AppInsightsService) UploadStats(stats NodeStats) {
 		client.Track(freeMetric)
 	}
 
-	client.TrackMetric("Memory used", float64(stats.memory.Used))
-	client.TrackMetric("Memory available", float64(stats.memory.Total-stats.memory.Used))
-	client.TrackMetric("Disk read", float64(stats.diskIO.readBps))
-	client.TrackMetric("Disk write", float64(stats.diskIO.writeBps))
-	client.TrackMetric("Network read", float64(stats.netIO.readBps))
-	client.TrackMetric("Network write", float64(stats.netIO.writeBps))
+	if stats.memory != nil {
+		client.TrackMetric("Memory used", float64(stats.memory.Used))
+		client.TrackMetric("Memory available", float64(stats.memory.Total-stats.memory.Used))
+	}
+	if stats.diskIO != nil {
+		client.TrackMetric("Disk read", float64(stats.diskIO.readBps))
+		client.TrackMetric("Disk write", float64(stats.diskIO.writeBps))
+	}
+
+	if stats.netIO != nil {
+		client.TrackMetric("Network read", float64(stats.netIO.readBps))
+		client.TrackMetric("Network write", float64(stats.netIO.writeBps))
+	}
 
 	if len(stats.gpus) > 0 {
 		for cpuN, usage := range stats.gpus {
