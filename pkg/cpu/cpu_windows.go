@@ -4,11 +4,8 @@ package cpu
 
 import (
 	"context"
-	"github.com/StackExchange/wmi"
-	"time"
+	"github.com/Azure/batch-insights/pkg/wmi"
 )
-
-const Timeout = 3 * time.Second
 
 type CPUStat struct {
 	value     uint64
@@ -65,30 +62,10 @@ func perfInfoWithContext(ctx context.Context) ([]win32_PerfRawData_Counters_Proc
 	var ret []win32_PerfRawData_Counters_ProcessorInformation
 
 	q := wmi.CreateQuery(&ret, "WHERE NOT Name LIKE '%_Total'")
-	err := WMIQueryWithContext(ctx, q, &ret)
+	err := wmi.QueryWithContext(ctx, q, &ret)
 	if err != nil {
 		return []win32_PerfRawData_Counters_ProcessorInformation{}, err
 	}
 
 	return ret, err
-}
-
-func WMIQueryWithContext(ctx context.Context, query string, dst interface{}, connectServerArgs ...interface{}) error {
-	if _, ok := ctx.Deadline(); !ok {
-		ctxTimeout, cancel := context.WithTimeout(ctx, Timeout)
-		defer cancel()
-		ctx = ctxTimeout
-	}
-
-	errChan := make(chan error, 1)
-	go func() {
-		errChan <- wmi.Query(query, dst, connectServerArgs...)
-	}()
-
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errChan:
-		return err
-	}
 }
