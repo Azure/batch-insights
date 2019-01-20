@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Azure/batch-insights/pkg"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -20,6 +21,11 @@ func main() {
 		appInsightsKey = os.Args[3]
 	}
 
+	processNames := []string {}
+	if len(os.Args) > 4 {
+		processNames = strings.Split(os.Args[4], ",")
+	}
+
 	batchinsights.PrintSystemInfo()
 	fmt.Printf("   Pool ID: %s\n", poolId)
 	fmt.Printf("   Node ID: %s\n", nodeId)
@@ -28,6 +34,10 @@ func main() {
 	if appInsightsKey != "" {
 		hiddenKey = "xxxxx"
 	}
+
 	fmt.Printf("   Instrumentation Key: %s\n", hiddenKey)
-	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey)
+
+	fmt.Printf("   Monitoring processes: %s\n", strings.Join(processNames, ", "))
+
+	batchinsights.ListenForStats(poolId, nodeId, appInsightsKey, processNames)
 }

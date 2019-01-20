@@ -15,8 +15,9 @@ import (
 
 const STATS_POLL_RATE = time.Duration(5) * time.Second
 
-func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
+func ListenForStats(poolId string, nodeId string, appInsightsKey string, processNames []string) {
 	var netIO = utils.IOAggregator{}
+
 	var gpuStatsCollector = NewGPUStatsCollector()
 	defer gpuStatsCollector.Shutdown()
 
@@ -26,10 +27,16 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 		gpuStatsCollector.GetStats()
 
 		v, _ := mem.VirtualMemory()
-		var cpus, err = cpu.PerCpuPercent()
+		cpus, err := cpu.PerCpuPercent()
 		if err != nil {
 			fmt.Println(err)
 		}
+
+		processes, err := ListProcesses(processNames)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		var stats = NodeStats{
 			memory:      v,
 			cpuPercents: cpus,
@@ -37,6 +44,7 @@ func ListenForStats(poolId string, nodeId string, appInsightsKey string) {
 			diskIO:      disk.DiskIO(),
 			netIO:       getNetIO(&netIO),
 			gpus:        gpuStatsCollector.GetStats(),
+			processes:   processes,
 		}
 
 		if appInsightsService != nil {
@@ -91,6 +99,14 @@ func printStats(stats NodeStats) {
 			fmt.Printf("  - GPU: %f%%, Memory: %f%%\n", usage.GPU, usage.Memory)
 		}
 	}
+
+	if len(stats.processes) > 0 {
+		fmt.Printf("Tracked processes:\n")
+		for _, process := range stats.processes {
+			fmt.Printf("  - %s (%d), CPU: %f%%, Memory: %s\n", process.name, process.pid, process.cpu, humanize.Bytes(process.memory))
+		}
+	}
+
 	fmt.Println()
 	fmt.Println()
 }
@@ -108,7 +124,7 @@ func createAppInsightsService(poolId string, nodeId string, appInsightsKey strin
 		service := NewAppInsightsService(appInsightsKey, poolId, nodeId)
 		return &service
 	} else {
-		fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set will to upload to app insights")
+		fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set; will not upload to Application Insights")
 		return nil
 	}
 }

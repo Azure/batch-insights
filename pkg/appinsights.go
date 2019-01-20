@@ -64,5 +64,27 @@ func (service AppInsightsService) UploadStats(stats NodeStats) {
 		}
 	}
 
+	if len(stats.processes) > 0 {
+		for _, processStats := range stats.processes {
+
+			pidStr := strconv.FormatInt(int64(processStats.pid), 10)
+
+			{
+				cpuMetric := appinsights.NewMetricTelemetry("Process CPU", processStats.cpu)
+				cpuMetric.Properties["Process Name"] = processStats.name
+				cpuMetric.Properties["PID"] = pidStr
+				client.Track(cpuMetric)
+			}
+
+			{
+				memMetric := appinsights.NewMetricTelemetry("Process Memory", float64(processStats.memory))
+				memMetric.Properties["Process Name"] = processStats.name
+				memMetric.Properties["PID"] = pidStr
+				client.Track(memMetric)
+			}
+
+		}
+	}
+
 	client.Channel().Flush()
 }
