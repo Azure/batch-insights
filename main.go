@@ -24,6 +24,10 @@ func main() {
 	processNames := []string {}
 	if len(os.Args) > 4 {
 		processNames = strings.Split(os.Args[4], ",")
+
+        for i := range processNames {
+            processNames[i] = strings.TrimSpace(processNames[i])
+        }
 	}
 
 	batchinsights.PrintSystemInfo()
