@@ -1,14 +1,16 @@
 package batchinsights
 
 import (
+    "strings"
+
 	"github.com/shirou/gopsutil/process"
 )
 
 // love to program in go
-func contains(xs []string, str string) bool {
+func containsCaseInsensitive(xs []string, str string) bool {
 
 	for _, x := range xs {
-		if str == x {
+		if strings.EqualFold(str, x) {
 			return true
 		}
 	}
@@ -36,7 +38,7 @@ func ListProcesses(processNames []string) ([]*ProcessPerfInfo, error) {
 			}
 
 			// check if we should include it
-			if !contains(processNames, name) {
+			if !containsCaseInsensitive(processNames, name) {
 				continue
 			}
 
