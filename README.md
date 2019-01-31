@@ -35,51 +35,58 @@ For example:
 
 ![](docs/images/release-links.png)
 
-
 ### Linux
 
 Add this to your start task
+
 ```bash
 /bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash'
 ```
+
 ### Windows
 
 Add this to your start task
-```batch
+```powershell
 cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1'))"
 
 ```
 
-**Note: The script used above just download the executable at the `BATCH_INSIGHTS_DOWNLOAD_URL` url and run it in the background. You can download it some other way and start it separatly.**
+**Note: The script used above just downloads the executable at the `BATCH_INSIGHTS_DOWNLOAD_URL` URL and run it in the background. You can download it some other way and start it separately.**
 
 ## Python Usage (Old)
 
 ### Ubuntu
-Add this command in your start task commandLine
+Add this command in your start task `commandLine`:
+
 ```bash
 /bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/ubuntu.sh | bash'
 ```
 
 ### Centos
-Add this command in your start task commandLine
+Add this command in your start task `commandLine`:
 ```bash
 /bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/centos.sh | bash'
 ```
 ### Windows
 
-```batch
+```powershell
 cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/windows.ps1'))"
-
 ```
+
 ### Generic
 If you already have a version of python installed you just need to download `nodestats.py` and install dependencies
-You can add this to your main script
-```
+You can add this to your main script:
+
+```sh
 pip install psutil python-dateutil applicationinsights==0.11.3
 wget --no-cache https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py
 python --version
 python nodestats.py > node-stats.log 2>&1 &
 ```
+
+## Monitoring processes
+
+If you want to emit data for processes, you can set the `AZ_BATCH_MONITOR_PROCESSES` environment variable. It can be set to a comma-separated list of process names that should be monitored (note that on Windows the .exe suffix must be included: `notepad.exe,explorer.exe`).
 
 ## View data
 
