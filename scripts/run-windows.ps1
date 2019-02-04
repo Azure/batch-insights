@@ -1,6 +1,6 @@
 $wd = $env:AZ_BATCH_TASK_WORKING_DIR
 
-$exe = "$wd\batch-insights.exe"
+$exe = "$wd/batch-insights.exe"
 
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 Invoke-WebRequest -Uri $env:BATCH_INSIGHTS_DOWNLOAD_URL -OutFile $exe
