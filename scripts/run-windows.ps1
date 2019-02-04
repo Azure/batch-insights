@@ -10,14 +10,17 @@ $exists = Get-ScheduledTask | Where-Object {$_.TaskName -like "batchappinsights"
 
 if($exists)
 {
-    Write-Host "Scheduled task already exists. Removing it and restarting it";
+    Write-Output "Scheduled task already exists. Removing it and restarting it";
     Stop-ScheduledTask -TaskName "batchappinsights";
     Unregister-ScheduledTask -Confirm:$false -TaskName "batchappinsights";
 }
 
-Write-Host "Starting App insights background process in $wd"
-$action = New-ScheduledTaskAction -WorkingDirectory $wd -Execute 'Powershell.exe' -Argument "Start-Process $exe -ArgumentList ('$env:AZ_BATCH_POOL_ID', '$env:AZ_BATCH_NODE_ID', '$env:APP_INSIGHTS_INSTRUMENTATION_KEY', '$env:AZ_BATCH_MONITOR_PROCESSES')  -RedirectStandardOutput .\node-stats.log -RedirectStandardError .\node-stats.err.log -NoNewWindow"  
+Write-Output "Starting App insights background process in $wd"
+
+$action = New-ScheduledTaskAction -WorkingDirectory $wd -Execute 'cmd.exe' -Argument "/c $exe `"$env:AZ_BATCH_POOL_ID`" `"$env:AZ_BATCH_NODE_ID`" `"$env:APP_INSIGHTS_INSTRUMENTATION_KEY`" `"$env:AZ_BATCH_MONITOR_PROCESSES`" > $wd\nodestats.log 2>&1"
 $principal = New-ScheduledTaskPrincipal -UserID 'NT AUTHORITY\SYSTEM' -LogonType ServiceAccount -RunLevel Highest ; 
-Register-ScheduledTask -Action $action -Principal $principal -TaskName "batchappinsights" -Force ; 
+$settings = New-ScheduledTaskSettingsSet -RestartCount 255 -RestartInterval ([timespan]::FromMinutes(1)) -ExecutionTimeLimit ([timespan]::FromDays(365))
+Register-ScheduledTask -Action $action -Principal $principal -TaskName "batchappinsights" -Settings $settings -Force
+
 Start-ScheduledTask -TaskName "batchappinsights"; 
 Get-ScheduledTask -TaskName "batchappinsights";
