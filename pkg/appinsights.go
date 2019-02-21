@@ -30,6 +30,8 @@ func NewAppInsightsService(instrumentationKey string, poolId string, nodeId stri
 
 func (service AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	t := time.Now()
+	fmt.Printf("Last time %v\n", service.aggregateCollectionStart)
+
 	if service.aggregateCollectionStart != nil {
 		elapsed := t.Sub(*service.aggregateCollectionStart)
 		fmt.Printf("Time elapsed %f > %f\n", elapsed, AGGREGATE_TIME)
