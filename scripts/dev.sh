@@ -1,5 +1,5 @@
 set -e
-branch = $BATCH_INSIGHTS_BRANCH
+branch=$BATCH_INSIGHTS_BRANCH
 
 apt-get update  
 apt-get install -y git binutils bison build-essential
