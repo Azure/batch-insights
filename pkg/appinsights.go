@@ -28,7 +28,7 @@ func NewAppInsightsService(instrumentationKey string, poolId string, nodeId stri
 	}
 }
 
-func (service AppInsightsService) track(metric *appinsights.MetricTelemetry) {
+func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	t := time.Now()
 	fmt.Printf("Last time %v\n", service.aggregateCollectionStart)
 
@@ -58,7 +58,7 @@ func (service AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	aggregate.AddData([]float64{metric.Value})
 }
 
-func (service AppInsightsService) UploadStats(stats NodeStats) {
+func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client := service.client
 
 	for cpuN, percent := range stats.cpuPercents {
