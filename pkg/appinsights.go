@@ -23,7 +23,8 @@ func NewAppInsightsService(instrumentationKey string, poolId string, nodeId stri
 	client.Context().Tags.Cloud().SetRoleInstance(nodeId)
 
 	return AppInsightsService{
-		client: client,
+		client:     client,
+		aggregates: make(map[string]*appinsights.AggregateMetricTelemetry),
 	}
 }
 
@@ -32,7 +33,7 @@ func (service AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	if service.aggregateCollectionStart != nil {
 		elapsed := t.Sub(*service.aggregateCollectionStart)
 		if elapsed > AGGREGATE_TIME {
-
+			fmt.Println("Sending aggregated data")
 			for _, aggregate := range service.aggregates {
 				service.client.Track(aggregate)
 			}
