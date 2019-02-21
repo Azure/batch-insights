@@ -46,7 +46,7 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 		service.aggregateCollectionStart = &t
 	}
 
-	id := getMetricId(metric)
+	id := GetMetricId(metric)
 
 	aggregate, ok := service.aggregates[id]
 	if !ok {
@@ -127,14 +127,20 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client.Channel().Flush()
 }
 
-func getMetricId(metric *appinsights.MetricTelemetry) string {
+func GetMetricId(metric *appinsights.MetricTelemetry) string {
 	groupBy := createKeyValuePairs(metric.Properties)
 	return fmt.Sprintf("%s/%s", metric.Name, groupBy)
 }
 
 func createKeyValuePairs(m map[string]string) string {
 	b := new(bytes.Buffer)
+	first := true
 	for key, value := range m {
+		if first {
+			first = false
+		} else {
+			fmt.Fprintf(b, ",")
+		}
 		fmt.Fprintf(b, "%s=%s", key, value)
 	}
 	return b.String()
