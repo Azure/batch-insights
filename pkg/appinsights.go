@@ -30,14 +30,14 @@ func NewAppInsightsService(instrumentationKey string, poolId string, nodeId stri
 
 func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	t := time.Now()
-	fmt.Printf("Last time %v\n", service.aggregateCollectionStart)
 
 	if service.aggregateCollectionStart != nil {
 		elapsed := t.Sub(*service.aggregateCollectionStart)
-		fmt.Printf("Time elapsed %v > %v\n", elapsed, AGGREGATE_TIME)
+
 		if elapsed > AGGREGATE_TIME {
-			fmt.Println("Sending aggregated data")
-			for _, aggregate := range service.aggregates {
+			fmt.Println("==================Sending aggregated data==================")
+			for k, aggregate := range service.aggregates {
+				fmt.Printf(" - %s: %f\n", k, aggregate.Value)
 				service.client.Track(aggregate)
 			}
 			service.aggregates = make(map[string]*appinsights.AggregateMetricTelemetry)
@@ -48,6 +48,7 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	}
 
 	id := getMetricId(metric)
+	// fmt.Printf("Tracking metric %s\n", id)
 
 	aggregate, ok := service.aggregates[id]
 	if !ok {
@@ -64,7 +65,7 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	for cpuN, percent := range stats.cpuPercents {
 		metric := appinsights.NewMetricTelemetry("Cpu usage", percent)
 		metric.Properties["CPU #"] = strconv.Itoa(cpuN)
-		// metric.Properties["Cores count"] = strconv.Itoa(len(stats.cpuPercents))
+		metric.Properties["Core count"] = strconv.Itoa(len(stats.cpuPercents))
 		service.track(metric)
 	}
 
@@ -130,13 +131,13 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 
 func getMetricId(metric *appinsights.MetricTelemetry) string {
 	groupBy := createKeyValuePairs(metric.Properties)
-	return fmt.Sprintf("%s=%f/%s", metric.Name, metric.Value, groupBy)
+	return fmt.Sprintf("%s=/%s", metric.Name, groupBy)
 }
 
 func createKeyValuePairs(m map[string]string) string {
 	b := new(bytes.Buffer)
 	for key, value := range m {
-		fmt.Fprintf(b, "%s=\"%s\"\n", key, value)
+		fmt.Fprintf(b, "%s\"%s\"", key, value)
 	}
 	return b.String()
 }
