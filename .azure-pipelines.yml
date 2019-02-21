@@ -12,6 +12,9 @@ jobs:
       - script: go build
         displayName: Build
 
+      - script: go test ./...
+        displayName: Test
+
       - script: ls
 
       - task: CopyFiles@2
@@ -36,6 +39,9 @@ jobs:
       - script: go build
         displayName: Build
 
+      - script: go test ./...
+        displayName: Test
+        
       - script: ls
 
       - task: CopyFiles@2

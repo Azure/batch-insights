@@ -22,7 +22,6 @@ func DiskIO() *utils.IOStats {
 	var writeBytes uint64 = 0
 
 	for _, v := range counters {
-		fmt.Println("stats", v.WriteBytes, v.WriteTime, v.WriteCount)
 		readBytes += v.ReadBytes
 		writeBytes += v.WriteBytes
 	}
