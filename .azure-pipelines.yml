@@ -12,7 +12,7 @@ jobs:
       - script: go build
         displayName: Build
 
-      - script: go test
+      - script: go test ./...
         displayName: Test
 
       - script: ls
@@ -39,7 +39,7 @@ jobs:
       - script: go build
         displayName: Build
 
-      - script: go test
+      - script: go test ./...
         displayName: Test
         
       - script: ls

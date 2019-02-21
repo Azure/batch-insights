@@ -12,8 +12,8 @@ func TestGetMetricId(t *testing.T) {
 	metric.Properties["Some #"] = "4"
 	metric.Properties["Other #"] = "5"
 
-	assert.Equal(t, batchinsights.GetMetricId(metric), "Disk usage/Some #=4,Other #=5")
+	assert.Equal(t, "Disk usage/Some #=4,Other #=5", batchinsights.GetMetricId(metric))
 
 	metric = appinsights.NewMetricTelemetry("Disk IO", 543)
-	assert.Equal(t, batchinsights.GetMetricId(metric), "Disk IO/")
+	assert.Equal(t, "Disk IO/", batchinsights.GetMetricId(metric))
 }
