@@ -35,7 +35,6 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 		elapsed := t.Sub(*service.aggregateCollectionStart)
 
 		if elapsed > AGGREGATE_TIME {
-			fmt.Println("==================Sending aggregated data==================")
 			for k, aggregate := range service.aggregates {
 				fmt.Printf(" - %s: %f\n", k, aggregate.Value)
 				service.client.Track(aggregate)
@@ -48,7 +47,6 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	}
 
 	id := getMetricId(metric)
-	// fmt.Printf("Tracking metric %s\n", id)
 
 	aggregate, ok := service.aggregates[id]
 	if !ok {
@@ -131,13 +129,13 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 
 func getMetricId(metric *appinsights.MetricTelemetry) string {
 	groupBy := createKeyValuePairs(metric.Properties)
-	return fmt.Sprintf("%s=/%s", metric.Name, groupBy)
+	return fmt.Sprintf("%s/%s", metric.Name, groupBy)
 }
 
 func createKeyValuePairs(m map[string]string) string {
 	b := new(bytes.Buffer)
 	for key, value := range m {
-		fmt.Fprintf(b, "%s\"%s\"", key, value)
+		fmt.Fprintf(b, "%s=%s", key, value)
 	}
 	return b.String()
 }
