@@ -1,4 +1,5 @@
 set -e
+branch = $BATCH_INSIGHTS_BRANCH
 
 apt-get update  
 apt-get install -y git binutils bison build-essential
@@ -13,7 +14,7 @@ export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
 echo GO version $(go version)
 
-git clone https://github.com/Azure/batch-insights
+git clone https://github.com/Azure/batch-insights -b $branch
 
 cd batch-insights
 go build
