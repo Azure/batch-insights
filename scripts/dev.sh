@@ -1,5 +1,7 @@
 set -e
+
 branch=$BATCH_INSIGHTS_BRANCH
+echo "Running Batch insights dev script for linux from branch $branch"
 
 apt-get update  
 apt-get install -y git binutils bison build-essential
