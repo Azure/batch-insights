@@ -7,9 +7,12 @@ import (
 )
 
 func TestBuildConfig(t *testing.T) {
+	pool1 := "pool-1"
+	node1 := "node-1"
+
 	input := batchinsights.UserConfig{
-		PoolID:  "pool-1",
-		NodeID:  "node-1",
+		PoolID:  &pool1,
+		NodeID:  &node1,
 		Process: []string{"foo.exe", "bar"},
 	}
 	result := batchinsights.BuildConfig(input)
@@ -25,8 +28,8 @@ func TestBuildConfig(t *testing.T) {
 	assert.Equal(t, false, result.Disable.GPU)
 
 	result = batchinsights.BuildConfig(batchinsights.UserConfig{
-		PoolID:  "pool-1",
-		NodeID:  "node-1",
+		PoolID:  &pool1,
+		NodeID:  &node1,
 		Disable: []string{"diskIO", "cpu"},
 	})
 
