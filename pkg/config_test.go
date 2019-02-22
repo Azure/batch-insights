@@ -17,8 +17,8 @@ func TestBuildConfig(t *testing.T) {
 	}
 	result := batchinsights.BuildConfig(input)
 
-	assert.Equal(t, "pool-1", result.PoolID)
-	assert.Equal(t, "node-1", result.NodeID)
+	assert.Equal(t, "pool-1", *result.PoolID)
+	assert.Equal(t, "node-1", *result.NodeID)
 	assert.Equal(t, []string{"foo.exe", "bar"}, result.Process)
 	assert.Equal(t, false, result.Disable.DiskIO)
 	assert.Equal(t, false, result.Disable.NetworkIO)
