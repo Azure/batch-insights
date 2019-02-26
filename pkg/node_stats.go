@@ -8,18 +8,18 @@ import (
 )
 
 type ProcessPerfInfo struct {
-	pid int32
-	name string
-	cpu float64
+	pid    int32
+	name   string
+	cpu    float64
 	memory uint64
 }
 
 type NodeStats struct {
-	memory      *mem.VirtualMemoryStat
-	cpuPercents []float64
-	diskUsage   []*disk.UsageStat
-	diskIO      *utils.IOStats
-	netIO       *utils.IOStats
-	gpus        []GPUUsage
-	processes   []*ProcessPerfInfo
+	Memory      *mem.VirtualMemoryStat
+	CpuPercents []float64
+	DiskUsage   []*disk.UsageStat
+	DiskIO      *utils.IOStats
+	NetIO       *utils.IOStats
+	Gpus        []GPUUsage
+	Processes   []*ProcessPerfInfo
 }

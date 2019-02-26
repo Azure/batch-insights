@@ -60,14 +60,14 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client := service.client
 
-	for cpuN, percent := range stats.cpuPercents {
+	for cpuN, percent := range stats.CpuPercents {
 		metric := appinsights.NewMetricTelemetry("Cpu usage", percent)
 		metric.Properties["CPU #"] = strconv.Itoa(cpuN)
-		metric.Properties["Core count"] = strconv.Itoa(len(stats.cpuPercents))
+		metric.Properties["Core count"] = strconv.Itoa(len(stats.CpuPercents))
 		service.track(metric)
 	}
 
-	for _, usage := range stats.diskUsage {
+	for _, usage := range stats.DiskUsage {
 		usedMetric := appinsights.NewMetricTelemetry("Disk usage", float64(usage.Used))
 		usedMetric.Properties["Disk"] = usage.Path
 		service.track(usedMetric)
@@ -76,22 +76,22 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 		service.track(freeMetric)
 	}
 
-	if stats.memory != nil {
-		service.track(appinsights.NewMetricTelemetry("Memory used", float64(stats.memory.Used)))
-		service.track(appinsights.NewMetricTelemetry("Memory available", float64(stats.memory.Total-stats.memory.Used)))
+	if stats.Memory != nil {
+		service.track(appinsights.NewMetricTelemetry("Memory used", float64(stats.Memory.Used)))
+		service.track(appinsights.NewMetricTelemetry("Memory available", float64(stats.Memory.Total-stats.Memory.Used)))
 	}
-	if stats.diskIO != nil {
-		service.track(appinsights.NewMetricTelemetry("Disk read", float64(stats.diskIO.ReadBps)))
-		service.track(appinsights.NewMetricTelemetry("Disk write", float64(stats.diskIO.WriteBps)))
-	}
-
-	if stats.netIO != nil {
-		service.track(appinsights.NewMetricTelemetry("Network read", float64(stats.netIO.ReadBps)))
-		service.track(appinsights.NewMetricTelemetry("Network write", float64(stats.netIO.WriteBps)))
+	if stats.DiskIO != nil {
+		service.track(appinsights.NewMetricTelemetry("Disk read", float64(stats.DiskIO.ReadBps)))
+		service.track(appinsights.NewMetricTelemetry("Disk write", float64(stats.DiskIO.WriteBps)))
 	}
 
-	if len(stats.gpus) > 0 {
-		for cpuN, usage := range stats.gpus {
+	if stats.NetIO != nil {
+		service.track(appinsights.NewMetricTelemetry("Network read", float64(stats.NetIO.ReadBps)))
+		service.track(appinsights.NewMetricTelemetry("Network write", float64(stats.NetIO.WriteBps)))
+	}
+
+	if len(stats.Gpus) > 0 {
+		for cpuN, usage := range stats.Gpus {
 			gpuMetric := appinsights.NewMetricTelemetry("Gpu usage", usage.GPU)
 			gpuMetric.Properties["GPU #"] = strconv.Itoa(cpuN)
 			service.track(gpuMetric)
@@ -102,8 +102,8 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 		}
 	}
 
-	if len(stats.processes) > 0 {
-		for _, processStats := range stats.processes {
+	if len(stats.Processes) > 0 {
+		for _, processStats := range stats.Processes {
 
 			pidStr := strconv.FormatInt(int64(processStats.pid), 10)
 

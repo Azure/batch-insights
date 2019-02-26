@@ -84,9 +84,12 @@ python --version
 python nodestats.py > node-stats.log 2>&1 &
 ```
 
-## Monitoring processes
+## Configuration
 
-If you want to emit data for processes, you can set the `AZ_BATCH_MONITOR_PROCESSES` environment variable. It can be set to a comma-separated list of process names that should be monitored (note that on Windows the .exe suffix must be included: `notepad.exe,explorer.exe`).
+[See available configuration options](./docs/configuration.md)
+
+You can set the `AZ_BATCH_INSIGHTS_ARGS` environemnt variable to pass parameters to the tool.
+e.g. `AZ_BATCH_INSIGHTS_ARGS` > `--disable networkIO --aggregation 5`
 
 ## View data
 

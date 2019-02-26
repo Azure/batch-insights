@@ -11,9 +11,9 @@ func TestBuildConfig(t *testing.T) {
 	node1 := "node-1"
 
 	input := batchinsights.UserConfig{
-		PoolID:  &pool1,
-		NodeID:  &node1,
-		Process: []string{"foo.exe", "bar"},
+		PoolID:    &pool1,
+		NodeID:    &node1,
+		Processes: []string{"foo.exe", "bar"},
 	}
 	result := batchinsights.BuildConfig(input)
 

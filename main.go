@@ -2,14 +2,18 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/Azure/batch-insights/pkg"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
 )
 
 func parseListArgs(value string) []string {
-	return strings.Split(value, ",")
+	names := strings.Split(value, ",")
+	for i := range names {
+		names[i] = strings.TrimSpace(names[i])
+	}
+	return names
 }
 
 func getenv(key string) *string {
@@ -20,9 +24,18 @@ func getenv(key string) *string {
 	return &value
 }
 
+func initLogger() {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp:    false,
+		DisableTimestamp: true,
+		ForceColors:      true,
+	})
+}
+
 func main() {
+	initLogger()
 	disableArg := flag.String("disable", "", "List of metrics to disable")
-	processArg := flag.String("process", "", "List of process name to watch")
+	processArg := flag.String("processes", "", "List of process name to watch")
 
 	envConfig := batchinsights.UserConfig{
 		InstrumentationKey: getenv("APP_INSIGHTS_INSTRUMENTATION_KEY"),
@@ -31,7 +44,7 @@ func main() {
 	}
 	processEnv := getenv("AZ_BATCH_MONITOR_PROCESSES")
 	if processEnv != nil {
-		envConfig.Process = parseListArgs(*processEnv)
+		envConfig.Processes = parseListArgs(*processEnv)
 	}
 	argsConfig := batchinsights.UserConfig{
 		PoolID:             flag.String("poolID", "", "Batch pool ID"),
@@ -42,42 +55,43 @@ func main() {
 
 	flag.Parse()
 	if processArg != nil {
-		argsConfig.Process = parseListArgs(*processArg)
+		argsConfig.Processes = parseListArgs(*processArg)
 	}
 	if disableArg != nil {
 		argsConfig.Disable = parseListArgs(*disableArg)
 	}
 
 	config := envConfig.Merge(argsConfig)
+
+	positionalArgs := flag.Args()
+	if len(positionalArgs) > 0 {
+		log.Warn("Using postional arguments for Node ID, PoolID, KEY and  Process names is deprecated. Use --poolID, --nodeID, --instKey, --process")
+		log.Warn("It will be removed in 2.0.0")
+		config.PoolID = &positionalArgs[0]
+	}
+
+	if len(positionalArgs) > 1 {
+		config.NodeID = &positionalArgs[1]
+	}
+
+	if len(positionalArgs) > 2 {
+		config.InstrumentationKey = &positionalArgs[2]
+	}
+
+	if len(positionalArgs) > 3 {
+		config.Processes = parseListArgs(positionalArgs[3])
+	}
+
 	config.Print()
 
-	fmt.Printf("%v\n", flag.Args())
+	computedConfig, err := batchinsights.ValidateAndBuildConfig(config)
 
-	// if len(os.Args) > 3 {
-	// 	appInsightsKey = os.Args[3]
-	// }
+	if err != nil {
+		log.Error("Invalid config", err)
+		os.Exit(2)
+	}
 
-	// if len(os.Args) > 4 {
-	// 	processNamesStr = os.Args[4]
-	// }
-
-	// processNames := strings.Split(processNamesStr, ",")
-	// for i := range processNames {
-	// 	processNames[i] = strings.TrimSpace(processNames[i])
-	// }
-
-	// batchinsights.PrintSystemInfo()
-	// fmt.Printf("   Pool ID: %s\n", poolId)
-	// fmt.Printf("   Node ID: %s\n", nodeId)
-
-	// hiddenKey := "-"
-	// if appInsightsKey != "" {
-	// 	hiddenKey = "xxxxx"
-	// }
-
-	// fmt.Printf("   Instrumentation Key: %s\n", hiddenKey)
-
-	// fmt.Printf("   Monitoring processes: %s\n", strings.Join(processNames, ", "))
-
-	// batchinsights.ListenForStats(poolId, nodeId, appInsightsKey, processNames)
+	computedConfig.Print()
+	batchinsights.PrintSystemInfo()
+	batchinsights.ListenForStats(computedConfig)
 }
