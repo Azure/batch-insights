@@ -150,8 +150,7 @@ func createAppInsightsService(config Config) *AppInsightsService {
 	if config.InstrumentationKey != "" {
 		service := NewAppInsightsService(config.InstrumentationKey, config.PoolID, config.NodeID, config.Aggregation)
 		return &service
-	} else {
-		fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set; will not upload to Application Insights")
-		return nil
 	}
+	fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set; will not upload to Application Insights")
+	return nil
 }
