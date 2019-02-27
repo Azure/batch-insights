@@ -50,7 +50,7 @@ func main() {
 		PoolID:             flag.String("poolID", "", "Batch pool ID"),
 		NodeID:             flag.String("nodeID", "", "Batch node ID"),
 		Aggregation:        flag.Int("aggregation", 1, "Aggregation in minutes"),
-		InstrumentationKey: flag.String("instkey", "", "Application Insights instrumentation KEY"),
+		InstrumentationKey: flag.String("instKey", "", "Application Insights instrumentation KEY"),
 	}
 
 	flag.Parse()
