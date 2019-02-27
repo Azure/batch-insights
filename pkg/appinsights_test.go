@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetMetricId(t *testing.T) {
+func TestGetMetricID(t *testing.T) {
 	metric := appinsights.NewMetricTelemetry("Disk usage", 134)
 	metric.Properties["Some #"] = "4"
 	metric.Properties["Other #"] = "5"
