@@ -9,6 +9,7 @@ import (
 	"github.com/Microsoft/ApplicationInsights-Go/appinsights"
 )
 
+// AppInsightsService
 type AppInsightsService struct {
 	client                   appinsights.TelemetryClient
 	aggregation              time.Duration
@@ -34,8 +35,8 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	if service.aggregateCollectionStart != nil {
 		elapsed := t.Sub(*service.aggregateCollectionStart)
 
-		if elapsed > AGGREGATE_TIME {
-			for k, aggregate := range service.aggregates {
+		if elapsed > service.aggregation {
+			for _, aggregate := range service.aggregates {
 				service.client.Track(aggregate)
 			}
 			service.aggregates = make(map[string]*appinsights.AggregateMetricTelemetry)
