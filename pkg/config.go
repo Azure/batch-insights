@@ -37,13 +37,13 @@ func (config UserConfig) Print() {
 
 // Merge with another config
 func (config UserConfig) Merge(other UserConfig) UserConfig {
-	if other.PoolID != nil && *other.PoolID != ""{
+	if other.PoolID != nil && *other.PoolID != "" {
 		config.PoolID = other.PoolID
 	}
-	if other.NodeID != nil && *other.NodeID != ""{
+	if other.NodeID != nil && *other.NodeID != "" {
 		config.NodeID = other.NodeID
 	}
-	if other.InstrumentationKey != nil && *other.InstrumentationKey != ""{
+	if other.InstrumentationKey != nil && *other.InstrumentationKey != "" {
 		config.InstrumentationKey = other.InstrumentationKey
 	}
 	if other.Aggregation != nil {
@@ -147,7 +147,6 @@ func parseDisableConfig(values []string) DisableConfig {
 func hideSecret(secret string) string {
 	if secret == "" {
 		return "-"
-	} else {
-		return "xxxxx"
 	}
+	return "xxxxx"
 }
