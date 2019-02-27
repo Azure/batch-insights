@@ -13,7 +13,7 @@ git clone https://github.com/Azure/batch-insights -b $branch
 
 Set-Location ./batch-insights
 
-go build -x
+go build -x -v
 
 $exe = "$wd/batch-insights/batch-insights.exe"
 
