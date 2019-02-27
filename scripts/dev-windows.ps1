@@ -5,14 +5,15 @@ $branch = $env:BATCH_INSIGHTS_BRANCH
 
 Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco install -y golang git
-choco install -y -f mingw
+# choco install -y -f mingw
+choco install -y mingw
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 git clone https://github.com/Azure/batch-insights -b $branch
 
 Set-Location ./batch-insights
 
-go build
+go build -x
 
 $exe = "$wd/batch-insights/batch-insights.exe"
 
