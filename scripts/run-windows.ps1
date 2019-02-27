@@ -17,6 +17,7 @@ if($exists)
 
 Write-Output "Starting App insights background process in $wd"
 
+# TODO-TIM add toolsArgs
 $action = New-ScheduledTaskAction -WorkingDirectory $wd -Execute 'cmd.exe' -Argument "/c $exe `"$env:AZ_BATCH_POOL_ID`" `"$env:AZ_BATCH_NODE_ID`" `"$env:APP_INSIGHTS_INSTRUMENTATION_KEY`" `"$env:AZ_BATCH_MONITOR_PROCESSES`" > $wd\nodestats.log 2>&1"
 $principal = New-ScheduledTaskPrincipal -UserID 'NT AUTHORITY\SYSTEM' -LogonType ServiceAccount -RunLevel Highest ; 
 $settings = New-ScheduledTaskSettingsSet -RestartCount 255 -RestartInterval ([timespan]::FromMinutes(1)) -ExecutionTimeLimit ([timespan]::FromDays(365))

@@ -29,7 +29,7 @@ if($exists)
 $toolArgs =  "--poolID $env:AZ_BATCH_POOL_ID --nodeID $env:AZ_BATCH_NODE_ID --instKey $env:APP_INSIGHTS_INSTRUMENTATION_KEY $AZ_BATCH_INSIGHTS_ARGS"
 
 Write-Host "Starting App insights background process in $wd"
-$action = New-ScheduledTaskAction -WorkingDirectory $wd -Execute 'Powershell.exe' -Argument "Start-Process $exe -Argument $toolArgs -RedirectStandardOutput .\node-stats.log -RedirectStandardError .\node-stats.err.log -NoNewWindow"  
+$action = New-ScheduledTaskAction -WorkingDirectory $wd -Execute 'Powershell.exe' -Argument "Start-Process $exe -Argument $toolArgs -RedirectStandardOutput .\batch-insights.log -RedirectStandardError .\batch-insights.err.log -NoNewWindow"  
 $principal = New-ScheduledTaskPrincipal -UserID 'NT AUTHORITY\SYSTEM' -LogonType ServiceAccount -RunLevel Highest ; 
 Register-ScheduledTask -Action $action -Principal $principal -TaskName "batchappinsights" -Force ; 
 Start-ScheduledTask -TaskName "batchappinsights"; 

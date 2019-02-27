@@ -21,4 +21,4 @@ git clone https://github.com/Azure/batch-insights -b $branch
 cd batch-insights
 go build
 
-./batch-insights $AZ_BATCH_INSIGHTS_ARGS > $AZ_BATCH_TASK_WORKING_DIR/node-stats.log 2>&1 &
+./batch-insights $AZ_BATCH_INSIGHTS_ARGS > $AZ_BATCH_TASK_WORKING_DIR/batch-insights.log 2>&1 &

@@ -36,7 +36,6 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 
 		if elapsed > AGGREGATE_TIME {
 			for k, aggregate := range service.aggregates {
-				fmt.Printf(" - %s: %f\n", k, aggregate.Value)
 				service.client.Track(aggregate)
 			}
 			service.aggregates = make(map[string]*appinsights.AggregateMetricTelemetry)
@@ -46,7 +45,7 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 		service.aggregateCollectionStart = &t
 	}
 
-	id := GetMetricId(metric)
+	id := GetMetricID(metric)
 
 	aggregate, ok := service.aggregates[id]
 	if !ok {
@@ -57,6 +56,7 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	aggregate.AddData([]float64{metric.Value})
 }
 
+// UploadStats will register the given stats for upload. They will be first aggregated during the given aggregation interval
 func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client := service.client
 
@@ -127,7 +127,8 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client.Channel().Flush()
 }
 
-func GetMetricId(metric *appinsights.MetricTelemetry) string {
+// GetMetricId compute an group id for this metric so it can be aggregated
+func GetMetricID(metric *appinsights.MetricTelemetry) string {
 	groupBy := createKeyValuePairs(metric.Properties)
 	return fmt.Sprintf("%s/%s", metric.Name, groupBy)
 }
