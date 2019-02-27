@@ -11,20 +11,20 @@ import (
 
 type AppInsightsService struct {
 	client                   appinsights.TelemetryClient
+	aggregation              time.Duration
 	aggregateCollectionStart *time.Time
 	aggregates               map[string]*appinsights.AggregateMetricTelemetry
 }
 
-const AGGREGATE_TIME = time.Duration(1) * time.Minute
-
-func NewAppInsightsService(instrumentationKey string, poolId string, nodeId string) AppInsightsService {
+func NewAppInsightsService(instrumentationKey string, poolId string, nodeId string, aggregation time.Duration) AppInsightsService {
 	client := appinsights.NewTelemetryClient(instrumentationKey)
 	client.Context().Tags.Cloud().SetRole(poolId)
 	client.Context().Tags.Cloud().SetRoleInstance(nodeId)
 
 	return AppInsightsService{
-		client:     client,
-		aggregates: make(map[string]*appinsights.AggregateMetricTelemetry),
+		client:      client,
+		aggregation: aggregation,
+		aggregates:  make(map[string]*appinsights.AggregateMetricTelemetry),
 	}
 }
 
