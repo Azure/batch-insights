@@ -9,7 +9,7 @@ import (
 	"github.com/Microsoft/ApplicationInsights-Go/appinsights"
 )
 
-// AppInsightsService
+// AppInsightsService service handling the aggregation and upload of metrics
 type AppInsightsService struct {
 	client                   appinsights.TelemetryClient
 	aggregation              time.Duration
@@ -17,10 +17,11 @@ type AppInsightsService struct {
 	aggregates               map[string]*appinsights.AggregateMetricTelemetry
 }
 
-func NewAppInsightsService(instrumentationKey string, poolId string, nodeId string, aggregation time.Duration) AppInsightsService {
+// NewAppInsightsService create a new instance of the AppInsightsService
+func NewAppInsightsService(instrumentationKey string, poolID string, nodeID string, aggregation time.Duration) AppInsightsService {
 	client := appinsights.NewTelemetryClient(instrumentationKey)
-	client.Context().Tags.Cloud().SetRole(poolId)
-	client.Context().Tags.Cloud().SetRoleInstance(nodeId)
+	client.Context().Tags.Cloud().SetRole(poolID)
+	client.Context().Tags.Cloud().SetRoleInstance(nodeID)
 
 	return AppInsightsService{
 		client:      client,
@@ -128,7 +129,7 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client.Channel().Flush()
 }
 
-// GetMetricId compute an group id for this metric so it can be aggregated
+// GetMetricID compute an group id for this metric so it can be aggregated
 func GetMetricID(metric *appinsights.MetricTelemetry) string {
 	groupBy := createKeyValuePairs(metric.Properties)
 	return fmt.Sprintf("%s/%s", metric.Name, groupBy)
