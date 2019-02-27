@@ -37,13 +37,13 @@ func (config UserConfig) Print() {
 
 // Merge with another config
 func (config UserConfig) Merge(other UserConfig) UserConfig {
-	if other.PoolID != nil {
+	if other.PoolID != nil && *other.PoolID != ""{
 		config.PoolID = other.PoolID
 	}
-	if other.NodeID != nil {
+	if other.NodeID != nil && *other.NodeID != ""{
 		config.NodeID = other.NodeID
 	}
-	if other.InstrumentationKey != nil {
+	if other.InstrumentationKey != nil && *other.InstrumentationKey != ""{
 		config.InstrumentationKey = other.InstrumentationKey
 	}
 	if other.Aggregation != nil {
