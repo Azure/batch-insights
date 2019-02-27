@@ -62,10 +62,10 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client := service.client
 
-	for cpuN, percent := range stats.CpuPercents {
+	for cpuN, percent := range stats.CPUPercents {
 		metric := appinsights.NewMetricTelemetry("Cpu usage", percent)
 		metric.Properties["CPU #"] = strconv.Itoa(cpuN)
-		metric.Properties["Core count"] = strconv.Itoa(len(stats.CpuPercents))
+		metric.Properties["Core count"] = strconv.Itoa(len(stats.CPUPercents))
 		service.track(metric)
 	}
 

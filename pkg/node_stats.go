@@ -7,6 +7,7 @@ import (
 	"github.com/Azure/batch-insights/pkg/utils"
 )
 
+// ProcessPerfInfo Process specific information
 type ProcessPerfInfo struct {
 	pid    int32
 	name   string
@@ -14,9 +15,10 @@ type ProcessPerfInfo struct {
 	memory uint64
 }
 
+// NodeStats Combined model for all metrics being collected at the given interal
 type NodeStats struct {
 	Memory      *mem.VirtualMemoryStat
-	CpuPercents []float64
+	CPUPercents []float64
 	DiskUsage   []*disk.UsageStat
 	DiskIO      *utils.IOStats
 	NetIO       *utils.IOStats

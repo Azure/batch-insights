@@ -5,16 +5,19 @@ import (
 	"github.com/Azure/batch-insights/nvml"
 )
 
+// GPUStatsCollector collector that retrieve gpu usage from nvml
 type GPUStatsCollector struct {
 	nvml        nvml.NvmlClient
 	deviceCount uint
 }
 
+// GPUUsage contains gpu stats
 type GPUUsage struct {
 	GPU    float64
 	Memory float64
 }
 
+// NewGPUStatsCollector Create a new instance of the GPU stats collector
 func NewGPUStatsCollector() GPUStatsCollector {
 	nvmlClient, err := nvml.New()
 
@@ -44,6 +47,7 @@ func NewGPUStatsCollector() GPUStatsCollector {
 	return GPUStatsCollector{}
 }
 
+// GetStats Get GPU stats
 func (gpu GPUStatsCollector) GetStats() []GPUUsage {
 	if gpu.nvml == nil {
 		return nil
@@ -79,6 +83,7 @@ func (gpu GPUStatsCollector) GetStats() []GPUUsage {
 	return uses
 }
 
+// Shutdown Dispose of the Nvidia driver connection
 func (gpu GPUStatsCollector) Shutdown() {
 	if gpu.nvml == nil {
 		return

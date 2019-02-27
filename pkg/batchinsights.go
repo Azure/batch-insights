@@ -45,7 +45,7 @@ func ListenForStats(config Config) {
 		if !config.Disable.CPU {
 			cpus, err := cpu.PerCpuPercent()
 			if err == nil {
-				stats.CpuPercents = cpus
+				stats.CPUPercents = cpus
 			} else {
 				fmt.Println(err)
 			}
@@ -102,7 +102,7 @@ func getConfiguration() {
 
 func printStats(stats NodeStats) {
 	fmt.Printf("========================= Stats =========================\n")
-	fmt.Printf("Cpu percent:           %f%%, %v cpu(s)\n", avg(stats.CpuPercents), len(stats.CpuPercents))
+	fmt.Printf("Cpu percent:           %f%%, %v cpu(s)\n", avg(stats.CPUPercents), len(stats.CPUPercents))
 	fmt.Printf("Memory used:           %s/%s\n", humanize.Bytes(stats.Memory.Used), humanize.Bytes(stats.Memory.Total))
 
 	if len(stats.DiskUsage) > 0 {
