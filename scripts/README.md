@@ -23,5 +23,5 @@ On linux
 On windows
 
 ```powershell
-cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/$env:BATCH_INSIGHTS_BRANCH/dev-windows.ps1'))"
+cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/$env:BATCH_INSIGHTS_BRANCH/scripts/dev-windows.ps1'))"
 ```
