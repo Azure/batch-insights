@@ -1,5 +1,12 @@
 # Script to be used as one liner
 
+## Major version compatibility
+Scripts in directories `1.x`, etc. contains version of the below script which are locked for a given version major version of batch insights.
+This means that you can reference those to make sure you don't get broken when a new major version comes in.
+**It is recommended to do so.** 
+
+## Scripts
+
 ### For linux
 
 * `run-linux.sh`: Run a published version for linux

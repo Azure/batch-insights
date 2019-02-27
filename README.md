@@ -40,6 +40,10 @@ For example:
 Add this to your start task
 
 ```bash
+# For version 1.x of batch insights
+/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/1.x/run-linux.sh | bash'
+
+# For latest version of batch insights
 /bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash'
 ```
 
@@ -47,6 +51,10 @@ Add this to your start task
 
 Add this to your start task
 ```powershell
+# For version 1.x of batch insights
+cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/1.x/run-windows.ps1'))"
+
+# For latest version of batch insights
 cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1'))"
 
 ```
