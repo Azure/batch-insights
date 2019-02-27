@@ -28,7 +28,7 @@ if($exists)
 }
 
 
-$toolArgs =  "--poolID $env:AZ_BATCH_POOL_ID --nodeID $env:AZ_BATCH_NODE_ID --instKey $env:APP_INSIGHTS_INSTRUMENTATION_KEY $AZ_BATCH_INSIGHTS_ARGS"
+$toolArgs =  "--poolID $env:AZ_BATCH_POOL_ID --nodeID $env:AZ_BATCH_NODE_ID --instKey $env:APP_INSIGHTS_INSTRUMENTATION_KEY $env:AZ_BATCH_INSIGHTS_ARGS"
 
 Write-Host "Starting App insights background process in $wd"
 $action = New-ScheduledTaskAction -WorkingDirectory $wd -Execute 'cmd.exe' -Argument "/c $exe  $toolArgs > .\batch-insights.log 2>&1"  

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/Azure/batch-insights/pkg"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -53,7 +54,15 @@ func main() {
 		InstrumentationKey: flag.String("instKey", "", "Application Insights instrumentation KEY"),
 	}
 
+	version := flag.Bool("version", false, "Print current batch insights version")
+
 	flag.Parse()
+
+	if *version {
+		fmt.Println(batchinsights.Version)
+		os.Exit(0)
+	}
+
 	if processArg != nil {
 		argsConfig.Processes = parseListArgs(*processArg)
 	}
