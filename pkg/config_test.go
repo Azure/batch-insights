@@ -15,11 +15,12 @@ func TestBuildConfig(t *testing.T) {
 		NodeID:    &node1,
 		Processes: []string{"foo.exe", "bar"},
 	}
-	result := batchinsights.BuildConfig(input)
+	result, err := batchinsights.ValidateAndBuildConfig(input)
 
-	assert.Equal(t, "pool-1", *result.PoolID)
-	assert.Equal(t, "node-1", *result.NodeID)
-	assert.Equal(t, []string{"foo.exe", "bar"}, result.Process)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "pool-1", result.PoolID)
+	assert.Equal(t, "node-1", result.NodeID)
+	assert.Equal(t, []string{"foo.exe", "bar"}, result.Processes)
 	assert.Equal(t, false, result.Disable.DiskIO)
 	assert.Equal(t, false, result.Disable.NetworkIO)
 	assert.Equal(t, false, result.Disable.DiskUsage)
@@ -27,13 +28,13 @@ func TestBuildConfig(t *testing.T) {
 	assert.Equal(t, false, result.Disable.Memory)
 	assert.Equal(t, false, result.Disable.GPU)
 
-	result = batchinsights.BuildConfig(batchinsights.UserConfig{
+	result, err = batchinsights.ValidateAndBuildConfig(batchinsights.UserConfig{
 		PoolID:  &pool1,
 		NodeID:  &node1,
 		Disable: []string{"diskIO", "cpu"},
 	})
 
-	// assert.Equal(t, []string{}, result.Process)
+	assert.Equal(t, nil, err)
 	assert.Equal(t, true, result.Disable.DiskIO)
 	assert.Equal(t, false, result.Disable.NetworkIO)
 	assert.Equal(t, false, result.Disable.DiskUsage)
