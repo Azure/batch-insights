@@ -8,11 +8,11 @@ Pool ID. Override pool ID provided by the `AZ_BATCH_POOL_ID` environment variabl
 #### `--nodeID <value>` 
 Node ID. Override node ID provided by the `AZ_BATCH_NODE_ID` environment variable
 #### `--instKey <value>` 
-Instrumentation key. Application insights instrumentation key to emit the metrics
+Instrumentation key. Application Insights instrumentation key to emit the metrics
 #### `--disable <value>` 
-List of metrics comma separated to disable. e.g. `--disable networkIO,diskUsage`
+Comma separated list of metrics to disable. e.g. `--disable networkIO,diskUsage`
 
-Available options
+Available metrics names:
     - diskIO
     - diskUsage
     - networkIO
@@ -20,11 +20,11 @@ Available options
     - CPU
     - GPU
 
-* `--aggregation <value>` Number in minutes to aggregate the data locally. Default to 1 minute 
+* `--aggregation <value>` Number in minutes to aggregate the data locally. Defaults to 1 minute 
 
-Example: `--agregation 5` to aggreate for 5 minutes
+Example: `--agregation 5` to aggregate for 5 minutes
 
 #### `--processes <value>` 
-List of process names to monitor comma separated.
+Comma separated list of processes to monitor.
 
 Example: `--processes notepad.exe,explorer.exe`
