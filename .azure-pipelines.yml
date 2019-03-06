@@ -15,7 +15,19 @@ jobs:
       - script: go test ./...
         displayName: Test
 
-      - script: ls
+      - powershell: |
+          $branch = $env:BUILD_SOURCEBRANCH
+          $buildType = "-test"
+          
+          If ($branch -like "refs/heads/master") {
+              $buildType="-master"
+          }
+
+          $pkgVersion = ./batch-insights --version
+          $version = "$pkgVersion$buildType.$env:BUILD_NUMBER"
+          Write-Host "Version is $version"
+          Write-Host "##vso[build.updatebuildnumber]$version"
+        displayName: Update build name
 
       - task: CopyFiles@2
         inputs:
@@ -42,8 +54,6 @@ jobs:
       - script: go test ./...
         displayName: Test
         
-      - script: ls
-
       - task: CopyFiles@2
         inputs:
           contents: batch-insights.exe
