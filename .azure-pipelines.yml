@@ -15,7 +15,7 @@ jobs:
       - script: go test ./...
         displayName: Test
 
-      - ps: |
+      - powershell: |
           $version = ./batch-insights --version
           Write-Host "Version is $version"
           Write-Host "##vso[build.updatebuildnumber]$version"
