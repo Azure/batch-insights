@@ -27,6 +27,7 @@ jobs:
           $version = "$pkgVersion$buildType.$env:BUILD_NUMBER"
           Write-Host "Version is $version"
           Write-Host "##vso[build.updatebuildnumber]$version"
+        displayName: Update build name
 
       - task: CopyFiles@2
         inputs:
