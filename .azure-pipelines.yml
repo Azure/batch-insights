@@ -16,7 +16,15 @@ jobs:
         displayName: Test
 
       - powershell: |
-          $version = ./batch-insights --version
+          $branch = $env:BUILD_SOURCEBRANCHNAME
+          $buildType = "-test"
+          
+          If ($branch -like "refs/heads/master") {
+              $buildType="-master"
+          }
+
+          $pkgVersion = ./batch-insights --version
+          $version = "$pkgVersion$buildType.$env:BUILD_NUMBER"
           Write-Host "Version is $version"
           Write-Host "##vso[build.updatebuildnumber]$version"
 
