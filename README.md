@@ -1,4 +1,5 @@
 # Batch Insights
+[![Build Status](https://dev.azure.com/azurebatch/BatchExplorer/_apis/build/status/Batch%20Insights/Batch-Insights-CI?branchName=master)](https://dev.azure.com/azurebatch/BatchExplorer/_build/latest?definitionId=20&branchName=master)
 
 Azure Batch Insights is a tool used to get system statistics for your Azure Batch account nodes.
 
