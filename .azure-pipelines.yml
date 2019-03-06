@@ -16,7 +16,7 @@ jobs:
         displayName: Test
 
       - powershell: |
-          $branch = $env:BUILD_SOURCEBRANCHNAME
+          $branch = $env:BUILD_SOURCEBRANCH
           $buildType = "-test"
           
           If ($branch -like "refs/heads/master") {
