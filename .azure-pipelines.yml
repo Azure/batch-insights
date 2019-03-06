@@ -15,7 +15,10 @@ jobs:
       - script: go test ./...
         displayName: Test
 
-      - script: ls
+      - ps: |
+          $version = ./batch-insights --version
+          Write-Host "Version is $version"
+          Write-Host "##vso[build.updatebuildnumber]$version"
 
       - task: CopyFiles@2
         inputs:
@@ -42,8 +45,6 @@ jobs:
       - script: go test ./...
         displayName: Test
         
-      - script: ls
-
       - task: CopyFiles@2
         inputs:
           contents: batch-insights.exe
