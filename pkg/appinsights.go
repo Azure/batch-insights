@@ -9,22 +9,24 @@ import (
 	"github.com/Microsoft/ApplicationInsights-Go/appinsights"
 )
 
+// AppInsightsService service handling the aggregation and upload of metrics
 type AppInsightsService struct {
 	client                   appinsights.TelemetryClient
+	aggregation              time.Duration
 	aggregateCollectionStart *time.Time
 	aggregates               map[string]*appinsights.AggregateMetricTelemetry
 }
 
-const AGGREGATE_TIME = time.Duration(1) * time.Minute
-
-func NewAppInsightsService(instrumentationKey string, poolId string, nodeId string) AppInsightsService {
+// NewAppInsightsService create a new instance of the AppInsightsService
+func NewAppInsightsService(instrumentationKey string, poolID string, nodeID string, aggregation time.Duration) AppInsightsService {
 	client := appinsights.NewTelemetryClient(instrumentationKey)
-	client.Context().Tags.Cloud().SetRole(poolId)
-	client.Context().Tags.Cloud().SetRoleInstance(nodeId)
+	client.Context().Tags.Cloud().SetRole(poolID)
+	client.Context().Tags.Cloud().SetRoleInstance(nodeID)
 
 	return AppInsightsService{
-		client:     client,
-		aggregates: make(map[string]*appinsights.AggregateMetricTelemetry),
+		client:      client,
+		aggregation: aggregation,
+		aggregates:  make(map[string]*appinsights.AggregateMetricTelemetry),
 	}
 }
 
@@ -34,9 +36,8 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	if service.aggregateCollectionStart != nil {
 		elapsed := t.Sub(*service.aggregateCollectionStart)
 
-		if elapsed > AGGREGATE_TIME {
-			for k, aggregate := range service.aggregates {
-				fmt.Printf(" - %s: %f\n", k, aggregate.Value)
+		if elapsed > service.aggregation {
+			for _, aggregate := range service.aggregates {
 				service.client.Track(aggregate)
 			}
 			service.aggregates = make(map[string]*appinsights.AggregateMetricTelemetry)
@@ -46,7 +47,7 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 		service.aggregateCollectionStart = &t
 	}
 
-	id := GetMetricId(metric)
+	id := GetMetricID(metric)
 
 	aggregate, ok := service.aggregates[id]
 	if !ok {
@@ -57,17 +58,18 @@ func (service *AppInsightsService) track(metric *appinsights.MetricTelemetry) {
 	aggregate.AddData([]float64{metric.Value})
 }
 
+// UploadStats will register the given stats for upload. They will be first aggregated during the given aggregation interval
 func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client := service.client
 
-	for cpuN, percent := range stats.cpuPercents {
+	for cpuN, percent := range stats.CPUPercents {
 		metric := appinsights.NewMetricTelemetry("Cpu usage", percent)
 		metric.Properties["CPU #"] = strconv.Itoa(cpuN)
-		metric.Properties["Core count"] = strconv.Itoa(len(stats.cpuPercents))
+		metric.Properties["Core count"] = strconv.Itoa(len(stats.CPUPercents))
 		service.track(metric)
 	}
 
-	for _, usage := range stats.diskUsage {
+	for _, usage := range stats.DiskUsage {
 		usedMetric := appinsights.NewMetricTelemetry("Disk usage", float64(usage.Used))
 		usedMetric.Properties["Disk"] = usage.Path
 		service.track(usedMetric)
@@ -76,22 +78,22 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 		service.track(freeMetric)
 	}
 
-	if stats.memory != nil {
-		service.track(appinsights.NewMetricTelemetry("Memory used", float64(stats.memory.Used)))
-		service.track(appinsights.NewMetricTelemetry("Memory available", float64(stats.memory.Total-stats.memory.Used)))
+	if stats.Memory != nil {
+		service.track(appinsights.NewMetricTelemetry("Memory used", float64(stats.Memory.Used)))
+		service.track(appinsights.NewMetricTelemetry("Memory available", float64(stats.Memory.Total-stats.Memory.Used)))
 	}
-	if stats.diskIO != nil {
-		service.track(appinsights.NewMetricTelemetry("Disk read", float64(stats.diskIO.ReadBps)))
-		service.track(appinsights.NewMetricTelemetry("Disk write", float64(stats.diskIO.WriteBps)))
-	}
-
-	if stats.netIO != nil {
-		service.track(appinsights.NewMetricTelemetry("Network read", float64(stats.netIO.ReadBps)))
-		service.track(appinsights.NewMetricTelemetry("Network write", float64(stats.netIO.WriteBps)))
+	if stats.DiskIO != nil {
+		service.track(appinsights.NewMetricTelemetry("Disk read", float64(stats.DiskIO.ReadBps)))
+		service.track(appinsights.NewMetricTelemetry("Disk write", float64(stats.DiskIO.WriteBps)))
 	}
 
-	if len(stats.gpus) > 0 {
-		for cpuN, usage := range stats.gpus {
+	if stats.NetIO != nil {
+		service.track(appinsights.NewMetricTelemetry("Network read", float64(stats.NetIO.ReadBps)))
+		service.track(appinsights.NewMetricTelemetry("Network write", float64(stats.NetIO.WriteBps)))
+	}
+
+	if len(stats.Gpus) > 0 {
+		for cpuN, usage := range stats.Gpus {
 			gpuMetric := appinsights.NewMetricTelemetry("Gpu usage", usage.GPU)
 			gpuMetric.Properties["GPU #"] = strconv.Itoa(cpuN)
 			service.track(gpuMetric)
@@ -102,8 +104,8 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 		}
 	}
 
-	if len(stats.processes) > 0 {
-		for _, processStats := range stats.processes {
+	if len(stats.Processes) > 0 {
+		for _, processStats := range stats.Processes {
 
 			pidStr := strconv.FormatInt(int64(processStats.pid), 10)
 
@@ -127,7 +129,8 @@ func (service *AppInsightsService) UploadStats(stats NodeStats) {
 	client.Channel().Flush()
 }
 
-func GetMetricId(metric *appinsights.MetricTelemetry) string {
+// GetMetricID compute an group id for this metric so it can be aggregated
+func GetMetricID(metric *appinsights.MetricTelemetry) string {
 	groupBy := createKeyValuePairs(metric.Properties)
 	return fmt.Sprintf("%s/%s", metric.Name, groupBy)
 }

@@ -1,5 +1,12 @@
 # Script to be used as one liner
 
+## Major version compatibility
+Scripts in directories `1.x`, etc. contains version of the below script which are locked for a given version major version of batch insights.
+This means that you can reference those to make sure you don't get broken when a new major version comes in.
+**It is recommended to do so.** 
+
+## Scripts
+
 ### For linux
 
 * `run-linux.sh`: Run a published version for linux
@@ -23,5 +30,5 @@ On linux
 On windows
 
 ```powershell
-cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/$env:BATCH_INSIGHTS_BRANCH/dev-windows.ps1'))"
+cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/%BATCH_INSIGHTS_BRANCH%/scripts/dev-windows.ps1'))"
 ```

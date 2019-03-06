@@ -40,6 +40,10 @@ For example:
 Add this to your start task
 
 ```bash
+# For version 1.x of batch insights
+/bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/1.x/run-linux.sh | bash'
+
+# For latest version of batch insights
 /bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash'
 ```
 
@@ -47,6 +51,10 @@ Add this to your start task
 
 Add this to your start task
 ```powershell
+# For version 1.x of batch insights
+cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/1.x/run-windows.ps1'))"
+
+# For latest version of batch insights
 cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1'))"
 
 ```
@@ -81,12 +89,15 @@ You can add this to your main script:
 pip install psutil python-dateutil applicationinsights==0.11.3
 wget --no-cache https://raw.githubusercontent.com/Azure/batch-insights/master/nodestats.py
 python --version
-python nodestats.py > node-stats.log 2>&1 &
+python nodestats.py > batch-insights.log 2>&1 &
 ```
 
-## Monitoring processes
+## Configuration
 
-If you want to emit data for processes, you can set the `AZ_BATCH_MONITOR_PROCESSES` environment variable. It can be set to a comma-separated list of process names that should be monitored (note that on Windows the .exe suffix must be included: `notepad.exe,explorer.exe`).
+[See available configuration options](./docs/configuration.md)
+
+You can set the `AZ_BATCH_INSIGHTS_ARGS` environemnt variable to pass parameters to the tool.
+e.g. `AZ_BATCH_INSIGHTS_ARGS` > `--disable networkIO --aggregation 5`
 
 ## View data
 

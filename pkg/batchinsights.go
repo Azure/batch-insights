@@ -13,38 +13,61 @@ import (
 	"github.com/shirou/gopsutil/net"
 )
 
-const STATS_POLL_RATE = time.Duration(5) * time.Second
+func getSamplingRate(rate time.Duration) time.Duration {
+	if rate <= time.Duration(0) {
+		return DefaultSamplingRate
+	}
+	return rate
+}
 
-func ListenForStats(poolId string, nodeId string, appInsightsKey string, processNames []string) {
+// ListenForStats Start the sanpling of node metrics
+func ListenForStats(config Config) {
 	var netIO = utils.IOAggregator{}
 
 	var gpuStatsCollector = NewGPUStatsCollector()
 	defer gpuStatsCollector.Shutdown()
 
-	var appInsightsService = createAppInsightsService(poolId, nodeId, appInsightsKey)
+	var appInsightsService = createAppInsightsService(config)
 
-	for _ = range time.Tick(STATS_POLL_RATE) {
+	for range time.Tick(getSamplingRate(config.SamplingRate)) {
 		gpuStatsCollector.GetStats()
 
-		v, _ := mem.VirtualMemory()
-		cpus, err := cpu.PerCpuPercent()
-		if err != nil {
-			fmt.Println(err)
+		var stats = NodeStats{}
+
+		if !config.Disable.Memory {
+			v, err := mem.VirtualMemory()
+			if err == nil {
+				stats.Memory = v
+			} else {
+				fmt.Println(err)
+			}
+		}
+		if !config.Disable.CPU {
+			cpus, err := cpu.PerCpuPercent()
+			if err == nil {
+				stats.CPUPercents = cpus
+			} else {
+				fmt.Println(err)
+			}
+		}
+		if !config.Disable.DiskUsage {
+			stats.DiskUsage = disk.GetDiskUsage()
+		}
+		if !config.Disable.DiskIO {
+			stats.DiskIO = disk.DiskIO()
+		}
+		if !config.Disable.NetworkIO {
+			stats.NetIO = getNetIO(&netIO)
+		}
+		if !config.Disable.GPU {
+			stats.Gpus = gpuStatsCollector.GetStats()
 		}
 
-		processes, err := ListProcesses(processNames)
-		if err != nil {
+		processes, err := ListProcesses(config.Processes)
+		if err == nil {
+			stats.Processes = processes
+		} else {
 			fmt.Println(err)
-		}
-
-		var stats = NodeStats{
-			memory:      v,
-			cpuPercents: cpus,
-			diskUsage:   disk.GetDiskUsage(),
-			diskIO:      disk.DiskIO(),
-			netIO:       getNetIO(&netIO),
-			gpus:        gpuStatsCollector.GetStats(),
-			processes:   processes,
 		}
 
 		if appInsightsService != nil {
@@ -67,6 +90,7 @@ func getNetIO(diskIO *utils.IOAggregator) *utils.IOStats {
 	return nil
 }
 
+// PrintSystemInfo print system info needed
 func PrintSystemInfo() {
 	fmt.Printf("System information:\n")
 	fmt.Printf("   OS: %s\n", runtime.GOOS)
@@ -78,31 +102,34 @@ func getConfiguration() {
 
 func printStats(stats NodeStats) {
 	fmt.Printf("========================= Stats =========================\n")
-	fmt.Printf("Cpu percent:           %f%%, %v cpu(s)\n", avg(stats.cpuPercents), len(stats.cpuPercents))
-	fmt.Printf("Memory used:           %s/%s\n", humanize.Bytes(stats.memory.Used), humanize.Bytes(stats.memory.Total))
-	fmt.Printf("Disk usage:\n")
-	for _, usage := range stats.diskUsage {
-		fmt.Printf("  - %s: %s/%s (%v%%)\n", usage.Path, humanize.Bytes(usage.Used), humanize.Bytes(usage.Total), usage.UsedPercent)
+	fmt.Printf("Cpu percent:           %f%%, %v cpu(s)\n", avg(stats.CPUPercents), len(stats.CPUPercents))
+	fmt.Printf("Memory used:           %s/%s\n", humanize.Bytes(stats.Memory.Used), humanize.Bytes(stats.Memory.Total))
+
+	if len(stats.DiskUsage) > 0 {
+		fmt.Printf("Disk usage:\n")
+		for _, usage := range stats.DiskUsage {
+			fmt.Printf("  - %s: %s/%s (%v%%)\n", usage.Path, humanize.Bytes(usage.Used), humanize.Bytes(usage.Total), usage.UsedPercent)
+		}
 	}
 
-	if stats.diskIO != nil {
-		fmt.Printf("Disk IO: R:%sps, W:%sps\n", humanize.Bytes(stats.diskIO.ReadBps), humanize.Bytes(stats.diskIO.WriteBps))
+	if stats.DiskIO != nil {
+		fmt.Printf("Disk IO: R:%sps, W:%sps\n", humanize.Bytes(stats.DiskIO.ReadBps), humanize.Bytes(stats.DiskIO.WriteBps))
 	}
 
-	if stats.netIO != nil {
-		fmt.Printf("NET IO: R:%sps, S:%sps\n", humanize.Bytes(stats.netIO.ReadBps), humanize.Bytes(stats.netIO.WriteBps))
+	if stats.NetIO != nil {
+		fmt.Printf("NET IO: R:%sps, S:%sps\n", humanize.Bytes(stats.NetIO.ReadBps), humanize.Bytes(stats.NetIO.WriteBps))
 	}
 
-	if len(stats.gpus) > 0 {
+	if len(stats.Gpus) > 0 {
 		fmt.Printf("GPU(s) usage:\n")
-		for _, usage := range stats.gpus {
+		for _, usage := range stats.Gpus {
 			fmt.Printf("  - GPU: %f%%, Memory: %f%%\n", usage.GPU, usage.Memory)
 		}
 	}
 
-	if len(stats.processes) > 0 {
+	if len(stats.Processes) > 0 {
 		fmt.Printf("Tracked processes:\n")
-		for _, process := range stats.processes {
+		for _, process := range stats.Processes {
 			fmt.Printf("  - %s (%d), CPU: %f%%, Memory: %s\n", process.name, process.pid, process.cpu, humanize.Bytes(process.memory))
 		}
 	}
@@ -112,19 +139,18 @@ func printStats(stats NodeStats) {
 }
 
 func avg(array []float64) float64 {
-	var total float64 = 0
+	var total float64
 	for _, value := range array {
 		total += value
 	}
 	return total / float64(len(array))
 }
 
-func createAppInsightsService(poolId string, nodeId string, appInsightsKey string) *AppInsightsService {
-	if appInsightsKey != "" {
-		service := NewAppInsightsService(appInsightsKey, poolId, nodeId)
+func createAppInsightsService(config Config) *AppInsightsService {
+	if config.InstrumentationKey != "" {
+		service := NewAppInsightsService(config.InstrumentationKey, config.PoolID, config.NodeID, config.Aggregation)
 		return &service
-	} else {
-		fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set; will not upload to Application Insights")
-		return nil
 	}
+	fmt.Println("APP_INSIGHTS_INSTRUMENTATION_KEY is not set; will not upload to Application Insights")
+	return nil
 }

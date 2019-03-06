@@ -1,7 +1,7 @@
 package batchinsights
 
 import (
-    "strings"
+	"strings"
 
 	"github.com/shirou/gopsutil/process"
 )
@@ -19,13 +19,14 @@ func containsCaseInsensitive(xs []string, str string) bool {
 
 }
 
+// ListProcesses Retrieve process cpu, memory, etc usage for the given list of process names
 func ListProcesses(processNames []string) ([]*ProcessPerfInfo, error) {
 	pids, err := process.Pids()
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
-	ps := []*ProcessPerfInfo {}
+	ps := []*ProcessPerfInfo{}
 	for _, pid := range pids {
 
 		// if err != nil, process has probably disappeared, continue on
@@ -55,9 +56,9 @@ func ListProcesses(processNames []string) ([]*ProcessPerfInfo, error) {
 			}
 
 			ps = append(ps, &ProcessPerfInfo{
-				pid: pid,
-				name: name,
-				cpu: cpuPercent,
+				pid:    pid,
+				name:   name,
+				cpu:    cpuPercent,
 				memory: memoryInfoStat.VMS,
 			})
 		}
