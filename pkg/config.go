@@ -29,7 +29,9 @@ func (config UserConfig) Print() {
 	fmt.Printf("User configuration:\n")
 	fmt.Printf("   Pool ID: %s\n", *config.PoolID)
 	fmt.Printf("   Node ID: %s\n", *config.NodeID)
-	fmt.Printf("   Instrumentation Key: %s\n", hideSecret(*config.InstrumentationKey))
+	if config.InstrumentationKey != nil {
+		fmt.Printf("   Instrumentation Key: %s\n", hideSecret(*config.InstrumentationKey))
+	}
 	fmt.Printf("   Aggregation: %d\n", *config.Aggregation)
 	fmt.Printf("   Disable: %v\n", config.Disable)
 	fmt.Printf("   Monitoring processes: %v\n", config.Processes)
