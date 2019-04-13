@@ -48,7 +48,10 @@ jobs:
         inputs:
           version: 1.11
 
-      - script: go build
+      - script: |
+        set GOARCH=amd64
+        echo "GO arch %GOARCH%"
+        go build
         displayName: Build
 
       - script: go test ./...
