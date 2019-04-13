@@ -49,9 +49,9 @@ jobs:
           version: 1.11
 
       - script: |
-        set GOARCH=amd64
-        echo "GO arch %GOARCH%"
-        go build
+          set GOARCH=amd64
+          echo "GO arch %GOARCH%"
+          go build
         displayName: Build
 
       - script: go test ./...
