@@ -54,8 +54,8 @@ jobs:
           go build
         displayName: Build
 
-      - script: go test ./...
-        displayName: Test
+#       - script: go test ./...
+#         displayName: Test
         
       - task: CopyFiles@2
         inputs:
