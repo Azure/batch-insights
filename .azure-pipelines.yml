@@ -52,6 +52,7 @@ jobs:
           set GOARCH=386
           go build -o ./batch-insights-x86.exe
         displayName: Build 32 bit
+        
       - script: |
           set GOARCH=amd64
           go build -o ./batch-insights-x64.exe
