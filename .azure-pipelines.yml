@@ -49,6 +49,7 @@ jobs:
           version: 1.12
 
       - script: |
+          set GOOS=windows
           set GOARCH=386
           go build -o ./batch-insights-x86.exe
         displayName: Build 32 bit
