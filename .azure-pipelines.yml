@@ -5,9 +5,9 @@ jobs:
       vmImage: ubuntu-16.04
     steps:
       - task: GoTool@0
-        displayName: 'Use Go 1.11'
+        displayName: 'Use Go 1.12'
         inputs:
-          version: 1.11
+          version: 1.12
 
       - script: go build
         displayName: Build
@@ -44,14 +44,15 @@ jobs:
       vmImage: vs2017-win2016
     steps:
       - task: GoTool@0
-        displayName: 'Use Go 1.11'
+        displayName: 'Use Go 1.12'
         inputs:
-          version: 1.11
+          version: 1.12
 
       - script: |
+          set GOARCH=386
           go build -o ./batch-insights-x86.exe
         displayName: Build 32 bit
-
+        
       - script: |
           set GOARCH=amd64
           go build -o ./batch-insights-x64.exe
