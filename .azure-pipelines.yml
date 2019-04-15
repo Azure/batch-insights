@@ -55,6 +55,7 @@ jobs:
         displayName: Build 32 bit
         
       - script: |
+          set GOOS=windows
           set GOARCH=amd64
           go build -o ./batch-insights-x64.exe
         displayName: Build 64 bit
