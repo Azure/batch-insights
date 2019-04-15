@@ -49,13 +49,16 @@ jobs:
           version: 1.11
 
       - script: |
+          set GOARCH=386
+          go build -o ./batch-insights-x86.exe
+        displayName: Build 32 bit
+      - script: |
           set GOARCH=amd64
-          echo "GO arch %GOARCH%"
-          go build
-        displayName: Build
+          go build -o ./batch-insights-x64.exe
+        displayName: Build 64 bit
 
-#       - script: go test ./...
-#         displayName: Test
+      - script: go test ./...
+        displayName: Test
         
       - task: CopyFiles@2
         inputs:
