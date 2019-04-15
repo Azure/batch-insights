@@ -51,16 +51,9 @@ jobs:
       - script: |
           set CGO_ENABLED=1
           set GOOS=windows
-          set GOARCH=386
-          go build -o ./batch-insights-x86.exe
-        displayName: Build 32 bit
-        
-      - script: |
-          set CGO_ENABLED=1
-          set GOOS=windows
           set GOARCH=amd64
           go env
-          go build -o ./batch-insights-x64.exe
+          go build -o ./batch-insights.exe
         displayName: Build 64 bit
 
       - script: go test ./...
