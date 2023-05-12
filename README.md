@@ -1,4 +1,5 @@
 # Batch Insights
+
 [![Build Status](https://dev.azure.com/azurebatch/BatchExplorer/_apis/build/status/Batch%20Insights/Batch-Insights-CI?branchName=master)](https://dev.azure.com/azurebatch/BatchExplorer/_build/latest?definitionId=20&branchName=master)
 
 Azure Batch Insights is a tool used to get system statistics for your Azure Batch account nodes.
@@ -12,27 +13,28 @@ Azure Batch Insights is a tool used to get system statistics for your Azure Batc
 3. Create or use an existing one(Application type input doesn't matter)
 
 ### Configure your Azure Batch pool start task
+
 Set 3 environment variables in your start task. Make sure this is set as a Batch environment variable rather than exporting. Without the Batch environment variable it will not show up in [Batch Explorer](https://azure.github.io/BatchExplorer). Then set the start task user to be `Pool Admin`(`Task admin` might work too)
 
-* `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
+- `APP_INSIGHTS_INSTRUMENTATION_KEY`: This your app insight instrumentation key
 
 _On the application insight blade in the Azure Portal_
 
 ![](docs/images/inst-key.png)
 
-* `APP_INSIGHTS_APP_ID`: This is your app insight application id
+- `APP_INSIGHTS_APP_ID`: This is your app insight application id
 
-_On the application insight blade in the Azure Portal_
+_On the application insight blade under Configure > API Access in the Azure Portal. May also be found as `AppId` in the JSON view of the resource Overview._
 
 ![](docs/images/app-id.png)
 
-
-* `BATCH_INSIGHTS_DOWNLOAD_URL`: This is the link to the exe to run.
-To find this go to the [releases](https://github.com/Azure/batch-insights/releases) and get the link to the release you need
+- `BATCH_INSIGHTS_DOWNLOAD_URL`: This is the link to the exe to run.
+  To find this go to the [releases](https://github.com/Azure/batch-insights/releases) and get the link to the release you need
 
 For example:
-* `Linux`: https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights
-* `Windows` : https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights.exe
+
+- `Linux`: https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights
+- `Windows` : https://github.com/Azure/batch-insights/releases/download/v1.0.0/batch-insights.exe
 
 ![](docs/images/release-links.png)
 
@@ -51,6 +53,7 @@ Add this to your start task
 ### Windows
 
 Add this to your start task
+
 ```powershell
 # For version 1.x of batch insights
 cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/1.x/run-windows.ps1'))"
@@ -65,6 +68,7 @@ cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile
 ## Python Usage (Old)
 
 ### Ubuntu
+
 Add this command in your start task `commandLine`:
 
 ```bash
@@ -72,10 +76,13 @@ Add this command in your start task `commandLine`:
 ```
 
 ### Centos
+
 Add this command in your start task `commandLine`:
+
 ```bash
 /bin/bash -c 'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/centos.sh | bash'
 ```
+
 ### Windows
 
 ```powershell
@@ -83,6 +90,7 @@ cmd /c @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile
 ```
 
 ### Generic
+
 If you already have a version of python installed you just need to download `nodestats.py` and install dependencies
 You can add this to your main script:
 
@@ -103,17 +111,19 @@ e.g. `AZ_BATCH_INSIGHTS_ARGS` > `--disable networkIO --aggregation 5`
 ## View data
 
 ### Option 1: [Batch Explorer](https://azure.github.io/BatchExplorer)
+
 BatchLabs is a desktop app used to manage, debug and monitor your azure batch accounts. You can download it [here](https://azure.github.io/BatchExplorer)
 If you followed the getting started instruction batchlabs should show you the statistics for each of your pool.
 
 ![](docs/images/batchexplorer.png)
 
-## Option 2: 
+## Option 2:
+
 Use the app insights tools to build your own query on the [Azure Portal](https://ms.portal.azure.com/#blade/HubsExtension/Resources/resourceType/microsoft.insights%2Fcomponents)
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
